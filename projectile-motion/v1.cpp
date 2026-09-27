@@ -15,12 +15,19 @@ double degreesToRadians(double theta)
     return theta * divisonFactor;
 }
 
-std::vector<double> solveQuadritic(double a, double b, double c)
+std::vector<double> solveQuadratic(double a, double b, double c)
 {
+    
     double discriminent;
     double x1, x2;
 
     std::vector<double> roots;
+
+    if (a == 0) 
+    {
+        std::cout << "a cannot be 0\n";
+        return roots;
+    }
 
     discriminent = b*b - 4*a*c;
 
@@ -35,7 +42,6 @@ std::vector<double> solveQuadritic(double a, double b, double c)
     else if (discriminent == 0) // real and equal roots
     {
         x1 = -b / (2*a);
-        x2 = x1;
         roots.push_back(x1);
     }
 
@@ -67,11 +73,12 @@ int main()
         cout << component << '\n';
     }
 
-    std::vector<double> v2 = solveQuadritic(1, -5, 6);
+    std::vector<double> v2 = solveQuadratic(0, 5, 2);
     for (const double &root : v2)
     {
         cout << root << '\n';
     }
+    cout << v2.size();
     return 0;
 
 }

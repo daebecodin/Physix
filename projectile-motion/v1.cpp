@@ -88,6 +88,30 @@ std::vector<double> resolveComponents(double magnitude, double theta)
     return vecComponents;
 }
 
+double horizontalDisplacement(double horizontalComponent, double timeOfFlight)
+{
+    return horizontalComponent * timeOfFlight;
+}
+
+std::vector<double> landingVelocity(double initialVx, double initialVy, double timeOfFlight)
+{
+    double vx;
+    double vy;
+
+    vx = initialVx;
+    vy = initialVy - (GRAVITY * timeOfFlight);
+
+    std::vector<double> velocityComponents;
+    velocityComponents.push_back(vx);
+    velocityComponents.push_back(vy);
+
+    return velocityComponents;
+}
+
+double velocityMagnitude(double vx, double vy)
+{
+    return std::sqrt((vx*vx) + (vy*vy));
+}
 
 
 int main() 
@@ -111,6 +135,24 @@ int main()
     cout << "time of flight\n";
     double t = timeOfFlight(10, 15, 0);
     cout << t << '\n';
+
+
+    cout << "landing position\n";
+    double landingPos = horizontalDisplacement(8, 3);
+    cout << landingPos << '\n';
+
+    cout << "landing velocity\n";
+    std::vector<double> landingV = landingVelocity(8, 10, 2);
+    double vx = landingV.at(0);
+    double vy = landingV.at(1);
+    cout << "Vx -> " << vx << '\n';
+    cout << "Vy -> " << vy << '\n';
+
+    cout << "speed\n";
+    double speed = velocityMagnitude(3, 4);
+    cout << speed << '\n';
     return 0;
+
+
 
 }

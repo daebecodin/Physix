@@ -4,8 +4,11 @@
 #include <array>
 
 using std::cout, std::cin;
+using std::begin, std::end;
 
-// math functions take radians 
+constexpr double GRAVITY = 9.8;
+
+// math functions take radian 
 double degreesToRadians(double theta)
 {
     double pi = std::numbers::pi;
@@ -48,6 +51,28 @@ std::vector<double> solveQuadratic(double a, double b, double c)
     return roots;
 }
 
+double timeOfFlight(double verticalComponent, double yInitial, double yFinal)
+{
+    double t {-1.0};
+    double gravityFactor;
+    double deltaY = -(yFinal - yInitial);
+    gravityFactor = -GRAVITY / 2;
+
+    std::vector<double> times = solveQuadratic(gravityFactor, verticalComponent, deltaY);
+
+    for (auto it = times.begin(); it != times.end(); ++it) 
+    {
+        double currentRoot = *it;
+        if (currentRoot > t && currentRoot >= 0)
+        {
+            t = *it;
+        }
+    }
+
+
+    return t;
+}
+
 
 std::vector<double> resolveComponents(double magnitude, double theta)
 {
@@ -64,21 +89,28 @@ std::vector<double> resolveComponents(double magnitude, double theta)
 }
 
 
+
 int main() 
 {
 
+    cout << "components\n";
     std::vector<double> v1 = resolveComponents(10, 45);
     for (const double &component : v1)
     {
         cout << component << '\n';
     }
 
+    cout << "quadritic\n";
     std::vector<double> v2 = solveQuadratic(0, 5, 2);
     for (const double &root : v2)
     {
         cout << root << '\n';
     }
-    cout << v2.size();
+    cout << v2.size() << '\n';
+
+    cout << "time of flight\n";
+    double t = timeOfFlight(10, 15, 0);
+    cout << t << '\n';
     return 0;
 
 }

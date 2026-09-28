@@ -113,6 +113,13 @@ double velocityMagnitude(double vx, double vy)
     return std::sqrt((vx*vx) + (vy*vy));
 }
 
+double maximumHeight(double initialVy, double launchHeight)
+{
+    double deltaY;
+    deltaY = (initialVy * initialVy) / (2 * GRAVITY);
+    return launchHeight + deltaY;
+}
+
 
 int main() 
 {
@@ -151,8 +158,10 @@ int main()
     cout << "speed\n";
     double speed = velocityMagnitude(3, 4);
     cout << speed << '\n';
+
+
+    cout << "max height\n";
+    double maxHeight = maximumHeight(9.8, 10);
+    cout << maxHeight << '\n';
     return 0;
-
-
-
 }

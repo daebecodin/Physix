@@ -4,6 +4,7 @@
 #include <numbers>
 #include <array>
 #include <limits>
+#include "math.h"
 
 using std::cout, std::cin;
 using std::begin, std::end;
@@ -53,7 +54,7 @@ std::vector<double> solveQuadratic(double a, double b, double c)
     return roots;
 }
 
-double timeOfFlight(double verticalComponent, double yInitial, double yFinal)
+double getTimeOfFlight(double verticalComponent, double yInitial, double yFinal)
 {
     double t {-1.0};
     double gravityFactor;
@@ -90,12 +91,12 @@ std::vector<double> resolveComponents(double magnitude, double theta)
     return vecComponents;
 }
 
-double horizontalDisplacement(double horizontalComponent, double timeOfFlight)
+double getHorizontalDisplacement(double horizontalComponent, double timeOfFlight)
 {
     return horizontalComponent * timeOfFlight;
 }
 
-std::vector<double> landingVelocity(double initialVx, double initialVy, double timeOfFlight)
+std::vector<double> getLandingVelocity(double initialVx, double initialVy, double timeOfFlight)
 {
     double vx;
     double vy;
@@ -110,19 +111,19 @@ std::vector<double> landingVelocity(double initialVx, double initialVy, double t
     return velocityComponents;
 }
 
-double velocityMagnitude(double vx, double vy)
+double getVelocityMagnitude(double vx, double vy)
 {
     return std::sqrt((vx*vx) + (vy*vy));
 }
 
-double maximumHeight(double initialVy, double launchHeight)
+double getMaximumHeight(double initialVy, double launchHeight)
 {
     double deltaY;
     deltaY = (initialVy * initialVy) / (2 * GRAVITY);
     return launchHeight + deltaY;
 }
 
-double getDuble(const std::string& prompt) 
+double getDouble(const std::string& prompt) 
 {
     double value;
     
@@ -150,26 +151,26 @@ double getDuble(const std::string& prompt)
 int main() 
 {
 
-    double initialVelocity = getDuble("Initial Velocity");
-    double theta = getDuble("Theta");
-    double xInitial = getDuble("X-Initial");
-    double yInitial = getDuble("Y-Initial");
-    double yFinal = getDuble("Y-Final");
+    double initialVelocity = getDouble("Initial Velocity");
+    double theta = getDouble("Theta");
+    double xInitial = getDouble("X-Initial");
+    double yInitial = getDouble("Y-Initial");
+    double yFinal = getDouble("Y-Final");
 
     std::vector<double> components = resolveComponents(initialVelocity, theta);
     double initialVx = components.at(0);
     double initialVy = components.at(1);
 
-    double time = timeOfFlight(initialVy, yInitial, yFinal);
+    double time = getTimeOfFlight(initialVy, yInitial, yFinal);
 
-    double landingPoint = horizontalDisplacement(initialVx, time);
+    double landingPoint = getHorizontalDisplacement(initialVx, time);
 
-    std::vector<double>  landingComponents = landingVelocity(initialVx, initialVy, time);
+    std::vector<double>  landingComponents = getLandingVelocity(initialVx, initialVy, time);
     double landingVx = landingComponents.at(0);
     double landingVy = landingComponents.at(1);
-    double impactSpeed = velocityMagnitude(landingVx, landingVy);
+    double impactSpeed = getVelocityMagnitude(landingVx, landingVy);
 
-    double peakHeight = maximumHeight(initialVy, yInitial);
+    double peakHeight = getMaximumHeight(initialVy, yInitial);
 
 
 

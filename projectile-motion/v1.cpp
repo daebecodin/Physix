@@ -1,7 +1,9 @@
 #include "pch.h"
 #include <cmath>
+#include <ios>
 #include <numbers>
 #include <array>
+#include <limits>
 
 using std::cout, std::cin;
 using std::begin, std::end;
@@ -120,48 +122,61 @@ double maximumHeight(double initialVy, double launchHeight)
     return launchHeight + deltaY;
 }
 
+double getDuble(const std::string& prompt) 
+{
+    double value;
+    
+    while (true)
+    {
+    std::cout << prompt << ": ";
+    
+    if (std::cin >> value)
+    {
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        return value;
+    }
+    else
+    {
+        std::cout << "Invalud input, please again\n";
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max());
+        std::cout << prompt << ": ";
+    }
+
+    }
+}
+
 
 int main() 
 {
 
-    cout << "components\n";
-    std::vector<double> v1 = resolveComponents(10, 45);
-    for (const double &component : v1)
-    {
-        cout << component << '\n';
-    }
+    double initialVelocity = getDuble("Initial Velocity");
+    double theta = getDuble("Theta");
+    double xInitial = getDuble("X-Initial");
+    double yInitial = getDuble("Y-Initial");
+    double yFinal = getDuble("Y-Final");
 
-    cout << "quadritic\n";
-    std::vector<double> v2 = solveQuadratic(0, 5, 2);
-    for (const double &root : v2)
-    {
-        cout << root << '\n';
-    }
-    cout << v2.size() << '\n';
+    std::vector<double> components = resolveComponents(initialVelocity, theta);
+    double initialVx = components.at(0);
+    double initialVy = components.at(1);
 
-    cout << "time of flight\n";
-    double t = timeOfFlight(10, 15, 0);
-    cout << t << '\n';
+    double time = timeOfFlight(initialVy, yInitial, yFinal);
 
+    double landingPoint = horizontalDisplacement(initialVx, time);
 
-    cout << "landing position\n";
-    double landingPos = horizontalDisplacement(8, 3);
-    cout << landingPos << '\n';
+    std::vector<double>  landingComponents = landingVelocity(initialVx, initialVy, time);
+    double landingVx = landingComponents.at(0);
+    double landingVy = landingComponents.at(1);
+    double impactSpeed = velocityMagnitude(landingVx, landingVy);
 
-    cout << "landing velocity\n";
-    std::vector<double> landingV = landingVelocity(8, 10, 2);
-    double vx = landingV.at(0);
-    double vy = landingV.at(1);
-    cout << "Vx -> " << vx << '\n';
-    cout << "Vy -> " << vy << '\n';
-
-    cout << "speed\n";
-    double speed = velocityMagnitude(3, 4);
-    cout << speed << '\n';
+    double peakHeight = maximumHeight(initialVy, yInitial);
 
 
-    cout << "max height\n";
-    double maxHeight = maximumHeight(9.8, 10);
-    cout << maxHeight << '\n';
+
+    cout << "Time: " << time << '\n';
+    cout << "LandingPosition: " << landingPoint << '\n';
+    cout << "Impact Speed: " << impactSpeed << '\n';
+    cout << "Max Height: " << peakHeight << '\n';
+
     return 0;
 }

@@ -23,6 +23,31 @@ constexpr double SATURN_ORBITAL_DISTANCE  = 1.432e12;
 constexpr double URANUS_ORBITAL_DISTANCE  = 2.867e12;
 constexpr double NEPTUNE_ORBITAL_DISTANCE = 4.515e12;
 
+
+double getDouble(const std::string& prompt) 
+{
+    double value;
+    
+    while (true)
+    {
+    std::cout << prompt << ": ";
+    
+    if (std::cin >> value)
+    {
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        return value;
+    }
+    else
+    {
+        std::cout << "Invalud input, please again\n";
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max());
+        std::cout << prompt << ": ";
+    }
+
+    }
+}
+
 double getDelta(double d2, double d1)
 {
     return d2 - d1;
@@ -142,24 +167,85 @@ void simulateSystem(std::vector<Body>& bodies, double dt)
 
 int main() 
 {
-    Body sun {SUN_MASS, {0.0, 0.0, 0.0}, {}};
-    Body mercury {MERCURY_MASS, {MERCURY_ORBITAL_DISTANCE, 0.0, 0.0}, {}};
+    // Bodies
+    /*
+     * sun
+     * mercury
+     * venus
+     * earth
+     * mars
+     * jupiter
+     * saturn
+     * uranus
+     * neptune
+     */
+    Body sun {
+        SUN_MASS, 
+        {0.0, 0.0, 0.0}, 
+        {}
+    };
+
+    Body mercury {
+        MERCURY_MASS, 
+        {MERCURY_ORBITAL_DISTANCE, 0.0, 0.0},
+        {}
+    };
+
+    Body venus {
+        VENUS_MASS,
+        {VENUS_ORBITAL_DISTANCE, 0.0, 0.0},
+        {}
+    };
+    
+    Body earth {
+        EARTH_MASS,
+        {EARTH_ORBITAL_DISTANCE, 0.0, 0.0},
+        {}
+    };
+
+    Body mars {
+        MARS_MASS,
+        {MARS_ORBITAL_DISTANCE, 0.0, 0.0},
+        {}
+    };
+
+    Body jupiter {
+        JUPITER_MASS,
+        {JUPITER_ORBITAL_DISTANCE, 0.0, 0.0},
+        {}
+    };
+
+    Body saturn {
+        SATURN_MASS,
+        {SATURN_ORBITAL_DISTANCE, 0.0, 0.0},
+        {}
+    };
+
+    Body uranus {
+        URANUS_MASS,
+        {URANUS_ORBITAL_DISTANCE, 0.0, 0.0},
+        {}
+    };
+
+    Body neptune {
+        NEPTUNE_MASS,
+        {NEPTUNE_ORBITAL_DISTANCE, 0.0, 0.0},
+        {}
+    };
 
 
-    std::cout << "---Mercury---\n";
+    // Gravitational Acceleration Pairs
     Vec3 mercuryAccelerationFromSun = getGravitationlAcceleration(sun, mercury);
-    std::cout << "Accleration Components -> "
-                << mercuryAccelerationFromSun.x << ", " 
-                << mercuryAccelerationFromSun.y << ", "
-                << mercuryAccelerationFromSun.z << '\n';
-
+    Vec3 sunAccelerationFromMercury = getGravitationlAcceleration(mercury, sun);
+    
+    // Circular Orbit Speeds and Initial Velocity
     double mercuryOrbitSpeed = getCircularOrbitSpeed(sun.mass, MERCURY_ORBITAL_DISTANCE);
     mercury.velocity = {0.0, mercuryOrbitSpeed, 0.0};
-    std::cout << "Orbit Speed -> " << mercuryOrbitSpeed << " m/s\n";
 
 
     // make a world struct
-    std::vector<Body> bodies = {sun, mercury};
+    std::vector<Body> bodies = {sun, mercury, venus, earth, mars, jupiter, saturn, uranus, neptune};
+    const std::vector<Body> startingBodies = bodies;
 
     return 0;
 

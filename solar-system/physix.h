@@ -48,5 +48,6 @@ double getAccelerationMagnitude(double atractorMass, double distance);
 double getCircularOrbitSpeed(double attracterMass, double distance);
 double getDelta(double d2, double d1);
 std::vector<Vec3> getSystemAccelerations(const std::vector<Body>& bodies);
+double getDouble(const std::string& prompt);
 void simulateSystem(std::vector<Body>& bodies, double dt);
 

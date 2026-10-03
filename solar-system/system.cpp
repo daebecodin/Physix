@@ -61,6 +61,9 @@ Vec3 resolveComponents(double accelerationMagnitude, double dx, double dy, doubl
 
 }
 
+/*
+ * Calculates the gravitation acceleration between two bodies
+ */
 Vec3 getGravitationlAcceleration(const Body& attracter, const Body& attracted){
     
     double dx = getDelta(attracter.position.x, attracted.position.x);
@@ -68,6 +71,7 @@ Vec3 getGravitationlAcceleration(const Body& attracter, const Body& attracted){
     double dz = getDelta(attracter.position.z, attracted.position.z);
 
 
+    // magnitude of the difference of between centers
     double r = getDistanceMagnitude(dx, dy, dz);
 
     if (r == 0) 
@@ -75,16 +79,72 @@ Vec3 getGravitationlAcceleration(const Body& attracter, const Body& attracted){
         throw std::invalid_argument("Bodies must have non-zero separations");
     }
 
+
     double a = getAccelerationMagnitude(attracter.mass, r);
 
     return resolveComponents(a, dx, dy, dz);
 }
 
+/*
+ * sums the gravitational acceleration vectors influenced by each surrounding body for each body,
+ * excluding itself
+ */
+std::vector<Vec3> getSystemAccelerations(const std::vector<Body>& bodies)
+{
+    std::vector<Vec3> systemAccelerations(bodies.size());
+
+    for ( std::size_t i = 0; i < bodies.size(); ++i )
+    {
+        for ( std::size_t j = 0; j < bodies.size(); ++j )
+        {
+            if ( j == i ) {
+                continue;
+            }
+
+            systemAccelerations[i] += getGravitationlAcceleration(bodies[j], bodies[i]);
+        }
+    }
+
+    return systemAccelerations;
+}
+
+/*
+ * using LeapFrog Kick-Drift algorithm simulate updating velocity
+ */
+void simulateSystem(std::vector<Body>& bodies, double dt) 
+{
+
+    std::vector<Vec3> systemAccelerations = getSystemAccelerations(bodies);
+
+    // half kick 1- update vel0city
+    for ( std::size_t i = 0; i < bodies.size(); ++i ) 
+    {
+        bodies[i].velocity += systemAccelerations[i] * ( dt / 2.0);
+    }
+
+    // drift - update position
+    for ( std::size_t i = 0; i < bodies.size(); ++i )
+    {
+        bodies[i].position += (bodies[i].velocity * dt);
+    }
+
+    // update accelerations
+    systemAccelerations = getSystemAccelerations(bodies);
+
+    // half kick 2 - update velocity
+    for ( std::size_t i = 0; i < bodies.size(); ++i )
+    {
+        bodies[i].velocity += systemAccelerations[i] * ( dt / 2 );
+    }
+
+    // update time
+}
 
 int main() 
 {
     Body sun {SUN_MASS, {0.0, 0.0, 0.0}, {}};
     Body mercury {MERCURY_MASS, {MERCURY_ORBITAL_DISTANCE, 0.0, 0.0}, {}};
+
 
     std::cout << "---Mercury---\n";
     Vec3 mercuryAccelerationFromSun = getGravitationlAcceleration(sun, mercury);
@@ -97,6 +157,9 @@ int main()
     mercury.velocity = {0.0, mercuryOrbitSpeed, 0.0};
     std::cout << "Orbit Speed -> " << mercuryOrbitSpeed << " m/s\n";
 
+
+    // make a world struct
+    std::vector<Body> bodies = {sun, mercury};
 
     return 0;
 

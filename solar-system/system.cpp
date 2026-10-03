@@ -38,6 +38,11 @@ double getAccelerationMagnitude(double attracterMass, double distance)
     return (UNIVERSAL_GRAVITY * attracterMass) / (distance * distance);
 }
 
+double getCircularOrbitSpeed(double attrcterMass, double distance)
+{
+    return std::sqrt((UNIVERSAL_GRAVITY * attrcterMass) / distance);
+}
+
 Vec3 resolveComponents(double accelerationMagnitude, double dx, double dy, double dz)
 {
     double r = getDistanceMagnitude(dx, dy, dz);
@@ -81,13 +86,18 @@ int main()
     Body sun {SUN_MASS, {0.0, 0.0, 0.0}, {}};
     Body mercury {MERCURY_MASS, {MERCURY_ORBITAL_DISTANCE, 0.0, 0.0}, {}};
 
+    std::cout << "---Mercury---\n";
     Vec3 mercuryAccelerationFromSun = getGravitationlAcceleration(sun, mercury);
+    std::cout << "Accleration Components -> "
+                << mercuryAccelerationFromSun.x << ", " 
+                << mercuryAccelerationFromSun.y << ", "
+                << mercuryAccelerationFromSun.z << '\n';
 
-    std::cout  << "x -> " << mercuryAccelerationFromSun.x << '\n' 
-               << "y -> " << mercuryAccelerationFromSun.y << '\n'
-               << "z -> " << mercuryAccelerationFromSun.z << '\n';
+    double mercuryOrbitSpeed = getCircularOrbitSpeed(sun.mass, MERCURY_ORBITAL_DISTANCE);
+    mercury.velocity = {0.0, mercuryOrbitSpeed, 0.0};
+    std::cout << "Orbit Speed -> " << mercuryOrbitSpeed << " m/s\n";
 
 
     return 0;
 
-}
+} 

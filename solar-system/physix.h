@@ -10,6 +10,28 @@ struct Body {
     double mass {}; // kg
     Vec3 position {}; // m
     Vec3 velocity {}; // m/s
+
+    Vec3& operator+=(const Vec3& other)
+    {
+        x += other.x;
+        y += other.y;
+        z += other.z;
+
+
+        return *this;
+    };
+
+    Vec3 operator*(double scalar) const
+    {
+        return {
+            x * scalar,
+            y * scalar,
+            z * scalar
+
+        };
+    }
+
+
 };
 
 Vec3 getGravitationlAcceleration(const Body& attrcter, const Body& attractod);

@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "physix.h"
 #include <stdexcept>
+#include <chrono>
+#include <thread>
 
 constexpr double UNIVERSAL_GRAVITY = 6.67430e-11;
 constexpr double SUN_MASS = 1.9884e30; // kg
@@ -283,6 +285,20 @@ int main()
 
     std::size_t steps = static_cast<std::size_t>( duration / dt );
 
+
+    std::cout << "Starting Positions\n";
+    for ( const Body& body : startingBodies)
+    {
+        std::cout 
+                << body.name << ": " 
+                << body.position.x << ", "
+                << body.position.y << ", "
+                << body.position.z << ", "
+                << '\n';
+
+    }
+
+    std::cout << "\nLive / Final Positions\n";
     for (std::size_t i = 0; i < steps; ++i) 
     {
         simulateSystem(bodies, dt);
@@ -302,8 +318,11 @@ int main()
                 << body.position.y << ", "
                 << body.position.z << ", "
                 << '\n';
-
         }
+
+        // slows down the display for better visulization
+        std::cout << std::flush;
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
 
 

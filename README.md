@@ -84,38 +84,6 @@ This is a simplified starting system. I haven't recreated the actual planets' po
 - The one-day run has passed basic runtime checks. I haven't verified accuracy over many orbits yet.
 - No moons, belts, asteroids, relativity, or graphics yet.
 
-## Checks and math I still need
-
-I want to finish the numerical side before graphics, even if that takes weeks. I'm lining this up with what I learn in class.
-
-### Chapter 5 review
-
-- [ ] Check my gravity and circular-speed functions against problems solved on paper.
-- [ ] Check how the acceleration vectors add up with multiple bodies.
-- [ ] Run an isolated Sun–planet system and compare its orbital period and distance with the expected values.
-- [ ] Run the same duration with smaller time steps and compare the results.
-
-### Chapter 6: energy
-
-- [ ] Add kinetic energy: `K = sum(0.5 * mass * speed²)`.
-- [ ] Learn and add orbital potential energy: `U = -sum(G * m_i * m_j / r_ij)`, counting each pair once.
-- [ ] Track total energy over multiple orbits and measure the error.
-
-I need the orbital potential-energy equation here. The `mgh` approximation near a planet's surface isn't enough for this.
-
-### Chapter 7: momentum and center of mass
-
-- [ ] Calculate total momentum and center-of-mass position and velocity.
-- [ ] Check that momentum stays nearly constant and the center of mass moves at constant velocity.
-- [ ] Adjust the starting velocities so total momentum is zero.
-
-### Chapter 8 and extra learning
-
-- [ ] Learn cross products and check angular momentum.
-- [ ] Understand leapfrog error and what happens when I reduce the time step.
-- [ ] Learn elliptical starting orbits, orbital elements, and the vis-viva equation.
-- [ ] Decide how to handle close encounters and collisions.
-
 ## What I want to add later
 
 - **NASA JPL Horizons:** get actual starting position and velocity vectors for the same date and reference frame. Convert the units correctly, record the time scale, and get mass data separately where needed.

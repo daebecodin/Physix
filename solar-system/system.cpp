@@ -112,6 +112,15 @@ Vec3 getGravitationlAcceleration(const Body& attracter, const Body& attracted){
     return resolveComponents(a, dx, dy, dz);
 }
 
+double getDistanceFromSun(const std::vector<Body>& bodies, std::size_t bodyIndex)
+{
+    double dx = bodies[bodyIndex].position.x - bodies[0].position.x;
+    double dy = bodies[bodyIndex].position.y - bodies[0].position.y;
+    double dz = bodies[bodyIndex].position.z - bodies[0].position.z;
+
+    return getDistanceMagnitude(dx, dy, dz);
+}
+
 /*
  * sums the gravitational acceleration vectors influenced by each surrounding body for each body,
  * excluding itself
@@ -320,7 +329,7 @@ int main()
                 << '\n';
         }
 
-        // slows down the display for better visulization
+        // slows down the display for better visualization
         std::cout << std::flush;
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }

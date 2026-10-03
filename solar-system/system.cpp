@@ -3,9 +3,11 @@
 #include <stdexcept>
 #include <chrono>
 #include <thread>
+#include <iomanip>
 
 constexpr double UNIVERSAL_GRAVITY = 6.67430e-11;
 constexpr double SUN_MASS = 1.9884e30; // kg
+
 // Planet masses in kilograms
 constexpr double MERCURY_MASS = 3.30e23;
 constexpr double VENUS_MASS   = 4.87e24;
@@ -15,6 +17,7 @@ constexpr double JUPITER_MASS = 1.898e27;
 constexpr double SATURN_MASS  = 5.68e26;
 constexpr double URANUS_MASS  = 8.68e25;
 constexpr double NEPTUNE_MASS = 1.02e26;
+
 // Approximate orbital semi-major axes, meters
 constexpr double MERCURY_ORBITAL_DISTANCE = 5.79e10;
 constexpr double VENUS_ORBITAL_DISTANCE   = 1.082e11;
@@ -145,14 +148,14 @@ std::vector<Vec3> getSystemAccelerations(const std::vector<Body>& bodies)
 }
 
 /*
- * using LeapFrog Kick-Drift algorithm simulate updating velocity
+ * using Leap Frog Kick-Drift algorithm simulate updating velocity
  */
 void simulateSystem(std::vector<Body>& bodies, double dt) 
 {
 
     std::vector<Vec3> systemAccelerations = getSystemAccelerations(bodies);
 
-    // half kick 1- update vel0city
+    // half kick 1- update velocity
     for ( std::size_t i = 0; i < bodies.size(); ++i ) 
     {
         bodies[i].velocity += systemAccelerations[i] * ( dt / 2.0);
@@ -252,11 +255,6 @@ int main()
         {NEPTUNE_ORBITAL_DISTANCE, 0.0, 0.0},
         {}
     };
-
-
-    // Gravitational Acceleration Pairs
-    Vec3 mercuryAccelerationFromSun = getGravitationlAcceleration(sun, mercury);
-    Vec3 sunAccelerationFromMercury = getGravitationlAcceleration(mercury, sun);
     
     // Circular Orbit Speeds and Initial Velocity
     double mercuryOrbitSpeed = getCircularOrbitSpeed(sun.mass, MERCURY_ORBITAL_DISTANCE);
@@ -291,52 +289,64 @@ int main()
 
     double duration = 24.0 * 60.0 * 60.0; // 86,400 seconds
     double dt = 60.0;// 60 seconds per step
+    double elapsedTime = 0.0;
 
     std::size_t steps = static_cast<std::size_t>( duration / dt );
 
+    std::cout << "\nStarting Positions (m)\n"
+        << std::left << std::setw(8) << "Body"
+        << std:: right << std::setw(14) << "X Pos" 
+        << std::setw(14) << "Y pos" 
+        << std::setw(14) << "Z pos" << '\n';
 
-    std::cout << "Starting Positions\n";
-    for ( const Body& body : startingBodies)
+    for (const Body& body : startingBodies)
     {
-        std::cout 
-                << body.name << ": " 
-                << body.position.x << ", "
-                << body.position.y << ", "
-                << body.position.z << ", "
-                << '\n';
-
+        std::cout << std::left << std::setw(8) << body.name
+            << std::right << std::scientific << std::setprecision(4)
+            << std::setw(14) << body.position.x
+            << std::setw(14) << body.position.y
+            << std::setw(14) << body.position.z << '\n';
     }
 
-    std::cout << "\nLive / Final Positions\n";
-    for (std::size_t i = 0; i < steps; ++i) 
-    {
-        simulateSystem(bodies, dt);
+    std::cout << '\n'
+          << std::left << std::setw(8) << "Body"
+          << std::right << std::setw(14) << "Sun dist (km)"
+          << std::setw(14) << " X pos (km)"
+          << std::setw(14) << "Y pos (km)" << '\n';
 
-        if (i > 0) 
-        {
-            std::cout << "\033[" << bodies.size() << "A";
-        }
-       
+   for (std::size_t i = 0; i < steps; ++i)
+   {
+       simulateSystem(bodies, dt);
+       elapsedTime += dt;
 
-        for (const Body& body : bodies)
-        {
-            std::cout 
-                << '\r' << "\033[2K" // Return to row start and erase it
-                << body.name << ": " 
-                << body.position.x << ", "
-                << body.position.y << ", "
-                << body.position.z << ", "
-                << '\n';
-        }
+       if (i > 0) 
+       {
+           std::cout << "\033[" << bodies.size() + 1 << "A";
+       }
 
-        // slows down the display for better visualization
-        std::cout << std::flush;
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+       std::cout << '\r' << "\033[2K"
+           << "Days: " 
+           << std::fixed << std::setprecision(3)
+           << elapsedTime / 86400.0 << '\n';
+
+       for (std::size_t j = 0; j < bodies.size(); ++j)
+       {
+           std::cout << '\r' << "\033[2K"
+               << std::left << std::setw(8) << bodies[j].name
+               << std::right << std::scientific
+               << std::setprecision(4)
+               << std::setw(14)
+               << getDistanceFromSun(bodies, j) / 1000.0
+               << std::setw(14)
+               << bodies[j].position.x / 1000.0
+               << std::setw(14)
+               << bodies[j].position.y / 1000.0
+               << '\n';
     }
 
-
-
-
+    std::cout << std::flush;
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+}
     return 0;
 
 } 

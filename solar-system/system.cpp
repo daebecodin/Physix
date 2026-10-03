@@ -242,6 +242,28 @@ int main()
     double mercuryOrbitSpeed = getCircularOrbitSpeed(sun.mass, MERCURY_ORBITAL_DISTANCE);
     mercury.velocity = {0.0, mercuryOrbitSpeed, 0.0};
 
+    double venusOrbitSpeed = getCircularOrbitSpeed(sun.mass, VENUS_ORBITAL_DISTANCE);
+    venus.velocity = {0.0, venusOrbitSpeed, 0.0};
+
+    double earthOrbitSpeed = getCircularOrbitSpeed(sun.mass, EARTH_ORBITAL_DISTANCE);
+    earth.velocity = {0.0, earthOrbitSpeed, 0.0};
+
+    double marsOrbitSpeed = getCircularOrbitSpeed(sun.mass, MARS_ORBITAL_DISTANCE);
+    mars.velocity = {0.0, marsOrbitSpeed, 0.0};
+
+    double jupiterOrbitSpeed = getCircularOrbitSpeed(sun.mass, JUPITER_ORBITAL_DISTANCE);
+    jupiter.velocity = {0.0, jupiterOrbitSpeed, 0.0};
+
+    double saturnOrbitSpeed = getCircularOrbitSpeed(sun.mass, SATURN_ORBITAL_DISTANCE);
+    saturn.velocity = {0.0, saturnOrbitSpeed, 0.0};
+
+    double uranusOrbitSpeed = getCircularOrbitSpeed(sun.mass, URANUS_ORBITAL_DISTANCE);
+    uranus.velocity = {0.0, uranusOrbitSpeed, 0.0};
+
+    double neptuneOrbitSpeed = getCircularOrbitSpeed(sun.mass, NEPTUNE_ORBITAL_DISTANCE);
+    neptune.velocity = {0.0, neptuneOrbitSpeed, 0.0};
+
+
 
     // make a world struct
     std::vector<Body> bodies = {sun, mercury, venus, earth, mars, jupiter, saturn, uranus, neptune};

@@ -35,6 +35,7 @@ struct Vec3 {
 };
 
 struct Body {
+    std::string name;
     double mass {}; // kg
     Vec3 position {}; // m
     Vec3 velocity {}; // m/s

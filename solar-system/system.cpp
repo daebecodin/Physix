@@ -180,54 +180,63 @@ int main()
      * neptune
      */
     Body sun {
+        "Sun",
         SUN_MASS, 
         {0.0, 0.0, 0.0}, 
         {}
     };
 
     Body mercury {
+        "Mercury",
         MERCURY_MASS, 
         {MERCURY_ORBITAL_DISTANCE, 0.0, 0.0},
         {}
     };
 
     Body venus {
+        "Venus",
         VENUS_MASS,
         {VENUS_ORBITAL_DISTANCE, 0.0, 0.0},
         {}
     };
     
     Body earth {
+        "Earth",
         EARTH_MASS,
         {EARTH_ORBITAL_DISTANCE, 0.0, 0.0},
         {}
     };
 
     Body mars {
+        "Mars",
         MARS_MASS,
         {MARS_ORBITAL_DISTANCE, 0.0, 0.0},
         {}
     };
 
     Body jupiter {
+        "Jupiter",
         JUPITER_MASS,
         {JUPITER_ORBITAL_DISTANCE, 0.0, 0.0},
         {}
     };
 
     Body saturn {
+        "Saturn",
         SATURN_MASS,
         {SATURN_ORBITAL_DISTANCE, 0.0, 0.0},
         {}
     };
 
     Body uranus {
+        "Uranus", 
         URANUS_MASS,
         {URANUS_ORBITAL_DISTANCE, 0.0, 0.0},
         {}
     };
 
     Body neptune {
+        "Neptune",
         NEPTUNE_MASS,
         {NEPTUNE_ORBITAL_DISTANCE, 0.0, 0.0},
         {}
@@ -268,6 +277,37 @@ int main()
     // make a world struct
     std::vector<Body> bodies = {sun, mercury, venus, earth, mars, jupiter, saturn, uranus, neptune};
     const std::vector<Body> startingBodies = bodies;
+
+    double duration = 24.0 * 60.0 * 60.0; // 86,400 seconds
+    double dt = 60.0;// 60 seconds per step
+
+    std::size_t steps = static_cast<std::size_t>( duration / dt );
+
+    for (std::size_t i = 0; i < steps; ++i) 
+    {
+        simulateSystem(bodies, dt);
+
+        if (i > 0) 
+        {
+            std::cout << "\033[" << bodies.size() << "A";
+        }
+       
+
+        for (const Body& body : bodies)
+        {
+            std::cout 
+                << '\r' << "\033[2K" // Return to row start and erase it
+                << body.name << ": " 
+                << body.position.x << ", "
+                << body.position.y << ", "
+                << body.position.z << ", "
+                << '\n';
+
+        }
+    }
+
+
+
 
     return 0;
 

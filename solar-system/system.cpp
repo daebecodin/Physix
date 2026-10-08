@@ -2,8 +2,6 @@
 #include "physix.h"
 #include "physix_calulations.h"
 #include "physix_constants.h"
-#include "physix_input.h"
-#include <stdexcept>
 #include <chrono>
 #include <thread>
 #include <iomanip>

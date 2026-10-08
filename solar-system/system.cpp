@@ -1,33 +1,12 @@
 #include "pch.h"
 #include "physix.h"
+#include "physix_constants.h"
 #include <stdexcept>
 #include <chrono>
 #include <thread>
 #include <iomanip>
 
-constexpr double UNIVERSAL_GRAVITY = 6.67430e-11;
-constexpr double SUN_MASS = 1.9884e30; // kg
-
-// Planet masses in kilograms
-constexpr double MERCURY_MASS = 3.30e23;
-constexpr double VENUS_MASS   = 4.87e24;
-constexpr double EARTH_MASS   = 5.97e24;
-constexpr double MARS_MASS    = 6.42e23;
-constexpr double JUPITER_MASS = 1.898e27;
-constexpr double SATURN_MASS  = 5.68e26;
-constexpr double URANUS_MASS  = 8.68e25;
-constexpr double NEPTUNE_MASS = 1.02e26;
-
-// Approximate orbital semi-major axes, meters
-constexpr double MERCURY_ORBITAL_DISTANCE = 5.79e10;
-constexpr double VENUS_ORBITAL_DISTANCE   = 1.082e11;
-constexpr double EARTH_ORBITAL_DISTANCE   = 1.496e11;
-constexpr double MARS_ORBITAL_DISTANCE    = 2.280e11;
-constexpr double JUPITER_ORBITAL_DISTANCE = 7.785e11;
-constexpr double SATURN_ORBITAL_DISTANCE  = 1.432e12;
-constexpr double URANUS_ORBITAL_DISTANCE  = 2.867e12;
-constexpr double NEPTUNE_ORBITAL_DISTANCE = 4.515e12;
-
+namespace Gravity = Physix::Constants::GravitationalForces;
 
 double getDouble(const std::string& prompt) 
 {
@@ -65,12 +44,12 @@ double getDistanceMagnitude(double dx, double dy, double dz)
 
 double getAccelerationMagnitude(double attracterMass, double distance)
 {
-    return (UNIVERSAL_GRAVITY * attracterMass) / (distance * distance);
+    return (Gravity::UNIVERSAL_GRAVITY * attracterMass) / (distance * distance);
 }
 
 double getCircularOrbitSpeed(double attrcterMass, double distance)
 {
-    return std::sqrt((UNIVERSAL_GRAVITY * attrcterMass) / distance);
+    return std::sqrt((Gravity::UNIVERSAL_GRAVITY * attrcterMass) / distance);
 }
 
 Vec3 resolveComponents(double accelerationMagnitude, double dx, double dy, double dz)
@@ -181,104 +160,96 @@ void simulateSystem(std::vector<Body>& bodies, double dt)
 
 int main() 
 {
-    // Bodies
-    /*
-     * sun
-     * mercury
-     * venus
-     * earth
-     * mars
-     * jupiter
-     * saturn
-     * uranus
-     * neptune
-     */
-    Body sun {
+    namespace Masses = Physix::Constants::Masses;
+    namespace Distances = Physix::Constants::Distances;
+
+
+      Body sun {
         "Sun",
-        SUN_MASS, 
+        Masses::SUN_MASS, 
         {0.0, 0.0, 0.0}, 
         {}
     };
 
     Body mercury {
         "Mercury",
-        MERCURY_MASS, 
-        {MERCURY_ORBITAL_DISTANCE, 0.0, 0.0},
+        Masses::MERCURY_MASS, 
+        {Distances::MERCURY_ORBITAL_DISTANCE, 0.0, 0.0},
         {}
     };
 
     Body venus {
         "Venus",
-        VENUS_MASS,
-        {VENUS_ORBITAL_DISTANCE, 0.0, 0.0},
+        Masses::VENUS_MASS,
+        {Distances::VENUS_ORBITAL_DISTANCE, 0.0, 0.0},
         {}
     };
     
     Body earth {
         "Earth",
-        EARTH_MASS,
-        {EARTH_ORBITAL_DISTANCE, 0.0, 0.0},
+        Masses::EARTH_MASS,
+        {Distances::EARTH_ORBITAL_DISTANCE, 0.0, 0.0},
         {}
     };
 
     Body mars {
         "Mars",
-        MARS_MASS,
-        {MARS_ORBITAL_DISTANCE, 0.0, 0.0},
+        Masses::MARS_MASS,
+        {Distances::MARS_ORBITAL_DISTANCE, 0.0, 0.0},
         {}
     };
 
     Body jupiter {
         "Jupiter",
-        JUPITER_MASS,
-        {JUPITER_ORBITAL_DISTANCE, 0.0, 0.0},
+        Masses::JUPITER_MASS,
+        {Distances::JUPITER_ORBITAL_DISTANCE, 0.0, 0.0},
         {}
     };
 
     Body saturn {
         "Saturn",
-        SATURN_MASS,
-        {SATURN_ORBITAL_DISTANCE, 0.0, 0.0},
+        Masses::SATURN_MASS,
+        {Distances::SATURN_ORBITAL_DISTANCE, 0.0, 0.0},
         {}
     };
 
     Body uranus {
         "Uranus", 
-        URANUS_MASS,
-        {URANUS_ORBITAL_DISTANCE, 0.0, 0.0},
+        Masses::URANUS_MASS,
+        {Distances::URANUS_ORBITAL_DISTANCE, 0.0, 0.0},
         {}
     };
 
     Body neptune {
         "Neptune",
-        NEPTUNE_MASS,
-        {NEPTUNE_ORBITAL_DISTANCE, 0.0, 0.0},
+        Masses::NEPTUNE_MASS,
+        {Distances::NEPTUNE_ORBITAL_DISTANCE, 0.0, 0.0},
         {}
     };
     
     // Circular Orbit Speeds and Initial Velocity
-    double mercuryOrbitSpeed = getCircularOrbitSpeed(sun.mass, MERCURY_ORBITAL_DISTANCE);
+    double mercuryOrbitSpeed = getCircularOrbitSpeed(sun.mass, Distances::MERCURY_ORBITAL_DISTANCE);
     mercury.velocity = {0.0, mercuryOrbitSpeed, 0.0};
 
-    double venusOrbitSpeed = getCircularOrbitSpeed(sun.mass, VENUS_ORBITAL_DISTANCE);
+    double venusOrbitSpeed = getCircularOrbitSpeed(sun.mass, Distances::VENUS_ORBITAL_DISTANCE);
     venus.velocity = {0.0, venusOrbitSpeed, 0.0};
 
-    double earthOrbitSpeed = getCircularOrbitSpeed(sun.mass, EARTH_ORBITAL_DISTANCE);
+    double earthOrbitSpeed = getCircularOrbitSpeed(sun.mass, Distances::EARTH_ORBITAL_DISTANCE);
     earth.velocity = {0.0, earthOrbitSpeed, 0.0};
 
-    double marsOrbitSpeed = getCircularOrbitSpeed(sun.mass, MARS_ORBITAL_DISTANCE);
+    double marsOrbitSpeed = getCircularOrbitSpeed(sun.mass, Distances::MARS_ORBITAL_DISTANCE);
     mars.velocity = {0.0, marsOrbitSpeed, 0.0};
 
-    double jupiterOrbitSpeed = getCircularOrbitSpeed(sun.mass, JUPITER_ORBITAL_DISTANCE);
+    double jupiterOrbitSpeed = getCircularOrbitSpeed(sun.mass, Distances::JUPITER_ORBITAL_DISTANCE);
     jupiter.velocity = {0.0, jupiterOrbitSpeed, 0.0};
 
-    double saturnOrbitSpeed = getCircularOrbitSpeed(sun.mass, SATURN_ORBITAL_DISTANCE);
+    double saturnOrbitSpeed = getCircularOrbitSpeed(sun.mass, Distances::SATURN_ORBITAL_DISTANCE);
     saturn.velocity = {0.0, saturnOrbitSpeed, 0.0};
 
-    double uranusOrbitSpeed = getCircularOrbitSpeed(sun.mass, URANUS_ORBITAL_DISTANCE);
+    double uranusOrbitSpeed = getCircularOrbitSpeed(sun.mass, Distances::URANUS_ORBITAL_DISTANCE);
     uranus.velocity = {0.0, uranusOrbitSpeed, 0.0};
 
-    double neptuneOrbitSpeed = getCircularOrbitSpeed(sun.mass, NEPTUNE_ORBITAL_DISTANCE);
+    double neptuneOrbitSpeed = getCircularOrbitSpeed(sun.mass, Distances::NEPTUNE_ORBITAL_DISTANCE);
     neptune.velocity = {0.0, neptuneOrbitSpeed, 0.0};
 
 

@@ -22,7 +22,7 @@ There is also a projectile-motion calculator and some force-related code in the 
 I use C++20. From `solar-system/`:
 
 ```sh
-g++ -std=c++20 -I../include system.cpp -o out
+g++ -std=c++20 -I../include system.cpp ../impl/physix.cpp ../impl/physix_calculations.cpp -o out
 ./out
 ```
 
@@ -32,6 +32,15 @@ Or from the project root with CMake:
 cmake -S . -B build
 cmake --build build --target system
 ./build/solar-system/system
+```
+
+Shared calculations and the leapfrog step live in `impl/`, with declarations in `include/`. CMake builds them as the `physix` library and links the example programs to it.
+
+To build and run the projectile calculator from the root:
+
+```sh
+cmake --build build --target v1
+./build/projectile-motion/v1
 ```
 
 Use a terminal that supports ANSI cursor movement. The rows need to fit on screen without wrapping, or the live output gets messed up.
@@ -44,7 +53,7 @@ All planets currently start on the positive x-axis, with velocity in positive y.
 
 The current run is one simulated day, with `dt = 60` seconds. That's 1,440 steps. I pause for 50 milliseconds after each display update so I can actually watch the numbers change. The pause affects playback, not the physics.
 
-`getDistanceFromSun` uses the Sun at index 0 and measures distance from its center.
+`Physix::Orbital::distanceFromSun` uses the Sun at index 0 and measures distance from its center.
 
 ## Math so far
 

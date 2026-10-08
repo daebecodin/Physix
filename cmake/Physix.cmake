@@ -35,6 +35,15 @@ if(NOT TARGET physix_pch)
     )
 endif()
 
+if(NOT TARGET physix)
+    add_library(physix STATIC
+        "${PHYSIX_ROOT}/impl/physix.cpp"
+        "${PHYSIX_ROOT}/impl/physix_calculations.cpp"
+        "${PHYSIX_ROOT}/impl/physix_input.cpp"
+    )
+    target_link_libraries(physix PUBLIC physix_pch)
+endif()
+
 function(physix_add_executable target_name)
     cmake_parse_arguments(ARG "" "" "SOURCES" ${ARGN})
 
@@ -43,7 +52,7 @@ function(physix_add_executable target_name)
     endif()
 
     add_executable("${target_name}" ${ARG_SOURCES})
-    target_link_libraries("${target_name}" PRIVATE physix_pch)
+    target_link_libraries("${target_name}" PRIVATE physix)
 endfunction()
 
 function(physix_add_all_executables)
@@ -58,7 +67,7 @@ function(physix_add_all_executables)
     # Ignore generated sources when the build directory is inside the project.
     list(
         FILTER source_files
-        EXCLUDE REGEX "/(build|cmake-build-[^/]*)/"
+        EXCLUDE REGEX "/(impl|build|cmake-build-[^/]*)/"
     )
 
     foreach(source_file IN LISTS source_files)

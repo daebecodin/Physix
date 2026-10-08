@@ -2,7 +2,7 @@
 
 
 
-namespace Physix::Constants::Masses{
+namespace Physix::Masses{
 
     inline constexpr double SUN_MASS = 1.9884e30; // kg
     inline constexpr double MERCURY_MASS = 3.30e23;
@@ -15,7 +15,7 @@ namespace Physix::Constants::Masses{
     inline constexpr double NEPTUNE_MASS = 1.02e26;
 }
 
-namespace Physix::Constants::Distances {
+namespace Physix::Distances {
 
     inline constexpr double MERCURY_ORBITAL_DISTANCE = 5.79e10;
     inline constexpr double VENUS_ORBITAL_DISTANCE   = 1.082e11;
@@ -27,7 +27,7 @@ namespace Physix::Constants::Distances {
     inline constexpr double NEPTUNE_ORBITAL_DISTANCE = 4.515e12;
 }
 
-namespace Physix::Constants::GravitationalForces {
+namespace Physix::GravitationalForces {
 
     inline constexpr double UNIVERSAL_GRAVITY = 6.67430e-11;
     constexpr double EARTH_GRAVITY = 9.8;

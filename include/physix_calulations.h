@@ -2,46 +2,46 @@
 #include "vec3.h"
 #include "body.h"
 #include <vector>
+#include <cstddef>
 
-namespace Physix::Calculate {
+namespace Physix::Orbital {
 
-    namespace Orbital {
+    Vec3 gravitationlAcceleration(const Body& attrcter, const Body& attractod);
 
-        Vec3 gravitationlAcceleration(const Body& attrcter, const Body& attractod);
+    Vec3 vectorComponents(double accelerationMagnitude, double dx, double dy, double dz);
 
-        Vec3 speed(double vx, double vy, double vz);
-        Vec3 vectorComponents(double accelerationMagnitude, double dx, double dy, double dz);
+    double distanceMagnitude(double dx, double dy, double dz);
 
-        double distanceMagnitude(double dx, double dy, double dz);
+    double accelerationMagnitude(double atractorMass, double distance);
 
-        double accelerationMagnitude(double atractorMass, double distance);
+    double circularOrbitSpeed(double attracterMass, double distance);
 
-        double circularOrbitSpeed(double attracterMass, double distance);
+    double delta(double d2, double d1);
 
-        double delta(double d2, double d1);
+    std::vector<Vec3> systemAccelerations(const std::vector<Body>& bodies);
 
-        std::vector<Vec3> getSystemAccelerations(const std::vector<Body>& bodies);
+    double distanceFromSun(const std::vector<Body>& bodies, std::size_t bodyIndex);
 
-        double distanceFromSun(const std::vector<Body>& bodies, std::size_t bodyIndex);
+}
 
-    }
 
-    namespace Projectile {
-        double setDegreesToRadians(double theta);
+namespace Physix::Projectile {
+    double degreesToRadians(double theta);
 
-        std::vector<double> solveQuadratic(double a, double b, double c);
+    std::vector<double> solveQuadratic(double a, double b, double c);
 
-        double getTimeOfFlight(double verticalComponent, double yInitial, double yFinal);
+    double timeOfFlight(double verticalComponent, double yInitial, double yFinal);
 
-        double resolveComponents(double magnitude, double theta);
+    std::vector<double> vectorComponents(double magnitude, double theta);
 
-        double getHorizontalDiaplacement(double horizontalComponent, double timeOfFlight);
+    double horizontalDisplacement(double horizontalComponent, double timeOfFlight);
 
-        double getLandingVelocity(double initialVx, double initialVy, double timeOfFlight);
+    std::vector<double> landingVelocity(double initialVx, double initialVy, double timeOfFlight);
 
-        double getSpeed(double vX, double vY);
 
-        double getMaximumHeight(double initialVy, double launchGeight);
+    double maximumHeight(double initialVy, double launchGeight);
 
-    }
+    double velocityMagnitude(double vx, double vy);
+
+
 }

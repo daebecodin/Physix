@@ -25,10 +25,25 @@ static Uint64 lastTime {};
 
 #define WINDOW_WIDTH 640
 #define WINDOW_HEIGHT 480
+#define CIRCLE_DRAW_SIDES 32
+#define CIRCLE_DRAW_SIDES_LEN (CIRCLE_DRAW_SIDES + 1)
 
 typedef struct {
 
 } GameState;
+
+static void drawCircle(SDL_Renderer *renderer, float r, float x, float y)
+{
+    float ang;
+    SDL_FPoint points[CIRCLE_DRAW_SIDES_LEN];
+    int i;
+    for (i = 0; i < CIRCLE_DRAW_SIDES_LEN; i++) {
+        ang = 2.0f * SDL_PI_F * (float)i / (float)CIRCLE_DRAW_SIDES;
+        points[i].x = x + r * SDL_cosf(ang);
+        points[i].y = y + r * SDL_sinf(ang);
+    }
+    SDL_RenderLines(renderer, (const SDL_FPoint*)&points, CIRCLE_DRAW_SIDES_LEN);
+}
 
 
 int main(int argc, char* argv[]) 
@@ -240,6 +255,9 @@ int main(int argc, char* argv[])
         SDL_RenderClear(physixRenderer);
 
         // Draw Bodies - 
+        SDL_SetRenderDrawColor(physixRenderer, 80, 140, 255, 255);
+        drawCircle(physixRenderer, 40.0f, 320.0f, 240.0f);
+
         // Draw Particles - SDL_RenderPoints
 
         // Update screen

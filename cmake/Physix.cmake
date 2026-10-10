@@ -52,7 +52,7 @@ function(physix_add_executable target_name)
     endif()
 
     add_executable("${target_name}" ${ARG_SOURCES})
-    target_link_libraries("${target_name}" PRIVATE physix)
+    target_link_libraries("${target_name}" PRIVATE physix SDL3::SDL3)
 endfunction()
 
 function(physix_add_all_executables)

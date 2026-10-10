@@ -119,7 +119,7 @@ int main()
 
     std::cout << "\nStarting Positions (m)\n"
         << std::left << std::setw(8) << "Body"
-        << std:: right << std::setw(14) << "X Pos" 
+        << std::right << std::setw(14) << "X Pos" 
         << std::setw(14) << "Y pos" 
         << std::setw(14) << "Z pos" << '\n';
 

@@ -7,3 +7,7 @@ cmake-build-*/
 
 # Manually compiled executables
 out
+
+
+# Temp
+compile_commands.json

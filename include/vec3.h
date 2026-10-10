@@ -5,7 +5,6 @@ struct Vec3 {
     double y {};
     double z {};
 
-
     Vec3& operator += (const Vec3& other) 
     {
         x += other.x;

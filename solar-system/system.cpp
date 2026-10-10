@@ -9,7 +9,9 @@
 #include "physix.h"
 #include "physix_calulations.h"
 #include "physix_constants.h"
+#include "vec3.h"
 #include <chrono>
+#include <memory>
 #include <thread>
 #include <iomanip>
 #include <iostream>
@@ -30,9 +32,11 @@ static Uint64 lastTime {};
 #define CIRCLE_DRAW_SIDES 32
 #define CIRCLE_DRAW_SIDES_LEN (CIRCLE_DRAW_SIDES + 1)
 
-typedef struct {
-
-} GameState;
+struct Camera {
+    Vec3 position {};
+    double yaw {};
+    double pitch {};
+} ;
 
 static void drawCircle(SDL_Renderer *renderer, float r, float x, float y)
 {
@@ -74,6 +78,19 @@ int main(int argc, char* argv[])
     namespace Calculate = Physix::Orbital;
     namespace System = Physix;
 
+    /*
+     * Place camera along x and y plane along the z axis
+     */
+    Camera cam;
+    cam = {
+        {
+            0.0,
+            0.0,
+            2 * Physix::Distances::NEPTUNE_ORBITAL_DISTANCE
+        },
+        0.0,
+        0.0
+    };
 
     Body sun {
         "Sun",
@@ -213,12 +230,19 @@ int main(int argc, char* argv[])
 
         if (elapsedTime < duration)
         {
+            /*
+             * Simulation Loop
+             */
             for (int step = 0; step < 100 && elapsedTime < duration; ++step)
             {
                 System::simulateSystem(bodies, dt);
                 elapsedTime += dt;
+
             }
 
+            /*
+             * Printing
+             */
             if (elapsedTime > dt) 
             {
                 std::cout << "\033[" << bodies.size() + 1 << "A";
@@ -247,6 +271,9 @@ int main(int argc, char* argv[])
             std::cout << std::flush;
         }
 
+        /*
+         * Rendering
+         */
         // Drawing current State
         SDL_SetRenderDrawColor(physixRenderer, 0x00, 0x00, 0x00, 0x00);
         SDL_RenderClear(physixRenderer);
@@ -255,17 +282,29 @@ int main(int argc, char* argv[])
         SDL_SetRenderDrawColor(physixRenderer, 80, 140, 255, 255);
 
         // window origin
-        const float centerX = WINDOW_WIDTH / 2.0f;
-        const float centerY = WINDOW_HEIGHT / 2.0f;
+        const float xCenter = WINDOW_WIDTH / 2.0f;
+        const float yCenter = WINDOW_HEIGHT / 2.0f;
+
+        const double focalLength = 600.0;
 
         for (Body body : bodies) 
         {
-            // where to render current body
-            const float screenX = static_cast<float> ( centerX + body.position.x * pixelsPerMeter);
-            const float screenY = static_cast<float> ( centerY - body.position.y * pixelsPerMeter);
+            // relative camera position
+            const double xRelative = body.position.x - cam.position.x;
+            const double yRelative = body.position.y - cam.position.y;
+            const double zRelative = body.position.z - cam.position.z;
 
+            const double depth = -zRelative;
 
-            drawCircle(physixRenderer, 5.0f, screenX, screenY);
+            if (depth <= 1.0) 
+            {
+                continue;
+            }
+
+            const float xScreen = static_cast<float> ( xCenter + focalLength * xRelative / depth);
+            const float yScreen = static_cast<float> ( yCenter - focalLength * yRelative / depth);
+
+            drawCircle(physixRenderer, 5.0f, xScreen, yScreen);
 
         }
 

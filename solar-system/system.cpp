@@ -21,10 +21,12 @@ static SDL_Surface* physixSurface = nullptr;
 static SDL_Texture* physixTexture = nullptr;
 static SDL_Event physixEvent;
 
+constexpr float pixelsPerMeter { 100.0 / Physix::Distances::EARTH_ORBITAL_DISTANCE };
+
 static Uint64 lastTime {};
 
-#define WINDOW_WIDTH 640
-#define WINDOW_HEIGHT 480
+#define WINDOW_WIDTH 1280
+#define WINDOW_HEIGHT 720
 #define CIRCLE_DRAW_SIDES 32
 #define CIRCLE_DRAW_SIDES_LEN (CIRCLE_DRAW_SIDES + 1)
 
@@ -167,7 +169,7 @@ int main(int argc, char* argv[])
     std::vector<Body> bodies = {sun, mercury, venus, earth, mars, jupiter, saturn, uranus, neptune};
     const std::vector<Body> startingBodies = bodies;
 
-    double duration = 24.0 * 60.0 * 60.0; // 86,400 seconds
+    double duration = 365.0 * 24.0 * 60.0 * 60.0; // 86,400 seconds
     double dt = 60.0;// 60 seconds per step
     double elapsedTime = 0.0;
 
@@ -193,11 +195,6 @@ int main(int argc, char* argv[])
         << std::setw(14) << " X pos (km)"
         << std::setw(14) << "Y pos (km)" << '\n';
 
-
-
-
-
-
     while (isRunning) 
     {
         // queue events
@@ -216,8 +213,11 @@ int main(int argc, char* argv[])
 
         if (elapsedTime < duration)
         {
-            System::simulateSystem(bodies, dt);
-            elapsedTime += dt;
+            for (int step = 0; step < 100 && elapsedTime < duration; ++step)
+            {
+                System::simulateSystem(bodies, dt);
+                elapsedTime += dt;
+            }
 
             if (elapsedTime > dt) 
             {
@@ -247,16 +247,27 @@ int main(int argc, char* argv[])
             std::cout << std::flush;
         }
 
-
-
-
         // Drawing current State
         SDL_SetRenderDrawColor(physixRenderer, 0x00, 0x00, 0x00, 0x00);
         SDL_RenderClear(physixRenderer);
 
         // Draw Bodies - 
         SDL_SetRenderDrawColor(physixRenderer, 80, 140, 255, 255);
-        drawCircle(physixRenderer, 40.0f, 320.0f, 240.0f);
+
+        // window origin
+        const float centerX = WINDOW_WIDTH / 2.0f;
+        const float centerY = WINDOW_HEIGHT / 2.0f;
+
+        for (Body body : bodies) 
+        {
+            // where to render current body
+            const float screenX = static_cast<float> ( centerX + body.position.x * pixelsPerMeter);
+            const float screenY = static_cast<float> ( centerY - body.position.y * pixelsPerMeter);
+
+
+            drawCircle(physixRenderer, 5.0f, screenX, screenY);
+
+        }
 
         // Draw Particles - SDL_RenderPoints
 

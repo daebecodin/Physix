@@ -1,16 +1,57 @@
-#include "pch.h"
+
+#include "SDL3/SDL_error.h"
+#include "SDL3/SDL_events.h"
+#include "SDL3/SDL_init.h"
+#include "SDL3/SDL_render.h"
+#include "SDL3/SDL_video.h"
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_log.h>
 #include "physix.h"
 #include "physix_calulations.h"
 #include "physix_constants.h"
 #include <chrono>
 #include <thread>
 #include <iomanip>
+#include <iostream>
+
+// Render to Draw
+static SDL_Window* physixWindow = nullptr;
+static SDL_Renderer* physixRenderer = nullptr;
+static SDL_Surface* physixSurface = nullptr;
+static SDL_Texture* physixTexture = nullptr;
+static SDL_Event physixEvent;
+
+static Uint64 lastTime {};
+
+#define WINDOW_WIDTH 640
+#define WINDOW_HEIGHT 480
+
+typedef struct {
+
+} GameState;
 
 
-
-
-int main() 
+int main(int argc, char* argv[]) 
 {
+    bool isRunning = true;
+
+    SDL_SetAppMetadata("Physix Simulations", "1.0", "daebecodin-physix");
+
+    if (!SDL_Init(SDL_INIT_VIDEO))
+    {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "SDL Initialization Failed: %s", SDL_GetError());
+        return 3;
+    }
+
+    if(!SDL_CreateWindowAndRenderer("Physix", WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_RESIZABLE, &physixWindow, &physixRenderer))
+    {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Window Initialization Faild: %s", SDL_GetError());
+        return SDL_APP_FAILURE;
+    }
+
+
+    SDL_SetRenderLogicalPresentation(physixRenderer, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_LOGICAL_PRESENTATION_LETTERBOX);
+
     namespace Masses = Physix::Masses;
     namespace Distances = Physix::Distances;
     namespace Calculate = Physix::Orbital;
@@ -115,8 +156,6 @@ int main()
     double dt = 60.0;// 60 seconds per step
     double elapsedTime = 0.0;
 
-    std::size_t steps = static_cast<std::size_t>( duration / dt );
-
     std::cout << "\nStarting Positions (m)\n"
         << std::left << std::setw(8) << "Body"
         << std::right << std::setw(14) << "X Pos" 
@@ -132,45 +171,89 @@ int main()
             << std::setw(14) << body.position.z << '\n';
     }
 
+
     std::cout << '\n'
         << std::left << std::setw(8) << "Body"
         << std::right << std::setw(14) << "Sun dist (km)"
         << std::setw(14) << " X pos (km)"
         << std::setw(14) << "Y pos (km)" << '\n';
 
-    for (std::size_t i = 0; i < steps; ++i)
+
+
+
+
+
+    while (isRunning) 
     {
-        System::simulateSystem(bodies, dt);
-        elapsedTime += dt;
-
-        if (i > 0) 
+        // queue events
+        while (SDL_PollEvent(&physixEvent))
         {
-            std::cout << "\033[" << bodies.size() + 1 << "A";
+            if (physixEvent.type == SDL_EVENT_QUIT)
+            {
+                isRunning = false;
+            }
         }
 
-        std::cout << '\r' << "\033[2K"
-            << "Days: " 
-            << std::fixed << std::setprecision(3)
-            << elapsedTime / 86400.0 << '\n';
-
-        for (std::size_t j = 0; j < bodies.size(); ++j)
+        if (!isRunning)
         {
+            break;
+        }
+
+        if (elapsedTime < duration)
+        {
+            System::simulateSystem(bodies, dt);
+            elapsedTime += dt;
+
+            if (elapsedTime > dt) 
+            {
+                std::cout << "\033[" << bodies.size() + 1 << "A";
+            }
+
             std::cout << '\r' << "\033[2K"
-                << std::left << std::setw(8) << bodies[j].name
-                << std::right << std::scientific
-                << std::setprecision(4)
-                << std::setw(14)
-                << Calculate::distanceFromSun(bodies, j) / 1000.0
-                << std::setw(14)
-                << bodies[j].position.x / 1000.0
-                << std::setw(14)
-                << bodies[j].position.y / 1000.0
-                << '\n';
+                << "Days: " 
+                << std::fixed << std::setprecision(3)
+                << elapsedTime / 86400.0 << '\n';
+
+            for (std::size_t j = 0; j < bodies.size(); ++j)
+            {
+                std::cout << '\r' << "\033[2K"
+                    << std::left << std::setw(8) << bodies[j].name
+                    << std::right << std::scientific
+                    << std::setprecision(4)
+                    << std::setw(14)
+                    << Calculate::distanceFromSun(bodies, j) / 1000.0
+                    << std::setw(14)
+                    << bodies[j].position.x / 1000.0
+                    << std::setw(14)
+                    << bodies[j].position.y / 1000.0
+                    << '\n';
+            }
+
+            std::cout << std::flush;
         }
 
-        std::cout << std::flush;
+
+
+
+        // Drawing current State
+        SDL_SetRenderDrawColor(physixRenderer, 0x00, 0x00, 0x00, 0x00);
+        SDL_RenderClear(physixRenderer);
+
+        // Draw Bodies - 
+        // Draw Particles - SDL_RenderPoints
+
+        // Update screen
+        SDL_RenderPresent(physixRenderer);
+
+        // Delay data
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
+
     }
+
+    SDL_DestroyRenderer(physixRenderer);
+    SDL_DestroyWindow(physixWindow);
+
+    SDL_Quit();
     return 0;
 
 } 

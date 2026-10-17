@@ -233,7 +233,7 @@ int main(int argc, char* argv[])
             /*
              * Simulation Loop
              */
-            for (int step = 0; step < 100 && elapsedTime < duration; ++step)
+            for (int step = 0; step < 10000 && elapsedTime < duration; ++step)
             {
                 System::simulateSystem(bodies, dt);
                 elapsedTime += dt;
@@ -281,18 +281,28 @@ int main(int argc, char* argv[])
         // Draw Bodies - 
         SDL_SetRenderDrawColor(physixRenderer, 80, 140, 255, 255);
 
-        // window origin
+        // window variables
         const float xCenter = WINDOW_WIDTH / 2.0f;
         const float yCenter = WINDOW_HEIGHT / 2.0f;
-
         const double focalLength = 600.0;
 
+        // Camera Rotation
+        const double cosYaw = SDL_cos(cam.yaw);
+        const double sinYaw = SDL_sin(cam.yaw);
+        const double cosPitch = SDL_cos(cam.pitch);
+        const double sinPitch = SDL_cos(cam.pitch);
+
+        /*
+         * Body Loop
+         */
         for (Body body : bodies) 
         {
             // relative camera position
             const double xRelative = body.position.x - cam.position.x;
             const double yRelative = body.position.y - cam.position.y;
             const double zRelative = body.position.z - cam.position.z;
+
+
 
             const double depth = -zRelative;
 

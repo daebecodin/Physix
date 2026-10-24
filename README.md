@@ -52,6 +52,15 @@ cmake --build build --target v1 -j 4
 
 Enter initial speed (m/s), launch angle (degrees), initial x (m), initial y (m), and final y (m), in that order. For example, `10`, `45`, `0`, `0`, `0` gives about 1.443 seconds of flight, a landing x of 10.204 m, and an impact speed of 10 m/s.
 
+### SDL3 GPU two-body example
+
+```sh
+cmake --build build --target two_body_gpu -j 4
+./build/two-body-gpu/two_body_gpu
+```
+
+This example uses GPU compute for the two-body leapfrog step and SDL3 GPU for lit 3D spheres. See [two-body-gpu/README.md](two-body-gpu/README.md) for shader formats, controls, and numerical limits.
+
 ### Refresh after editing
 
 Close a running app, rebuild its target using the commands above, then launch it again. Rebuilding does not update an already running process.

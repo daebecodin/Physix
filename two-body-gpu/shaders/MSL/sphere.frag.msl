@@ -1,0 +1,14 @@
+#include <metal_stdlib>
+using namespace metal;
+
+struct Input {
+    float4 position [[position]];
+    float3 normal;
+    float3 color;
+};
+
+fragment float4 main0(Input input [[stage_in]]) {
+    float brightness = 0.22f + 0.78f * max(dot(normalize(input.normal),
+        normalize(float3(-0.4f, -0.6f, 0.8f))), 0.0f);
+    return float4(input.color * brightness, 1.0f);
+}

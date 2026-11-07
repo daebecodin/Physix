@@ -1,33 +1,36 @@
-struct Body { float4 position_mass; float4 velocity; };
+struct Body { float4 position_mass; float4 velocity; float4 appearance; };
 StructuredBuffer<Body> input : register(t0, space0);
 RWStructuredBuffer<Body> output : register(u0, space1);
 cbuffer Parameters : register(b0, space2) {
     float gravity;
     float dt;
-    float unused0;
-    float unused1;
+    uint body_count;
+    uint phase;
 };
 
-float3 acceleration(float3 position, float3 other, float mass) {
-    float3 delta = other - position;
-    float r2 = max(dot(delta, delta), 1.0e-8f);
-    return gravity * mass * delta * rsqrt(r2 * r2 * r2);
+float3 acceleration(uint i) {
+    float3 result = float3(0.0f, 0.0f, 0.0f);
+    float3 position = input[i].position_mass.xyz;
+    for (uint j = 0; j < body_count; ++j) {
+        if (j == i) continue;
+        float3 delta = input[j].position_mass.xyz - position;
+        float r2 = max(dot(delta, delta), 1.0e-8f);
+        result += gravity * input[j].position_mass.w * delta * rsqrt(r2 * r2 * r2);
+    }
+    return result;
 }
 
-[numthreads(2, 1, 1)]
+[numthreads(64, 1, 1)]
 void main(uint3 id : SV_DispatchThreadID) {
     uint i = id.x;
-    if (i >= 2) return;
-    uint j = 1 - i;
-    Body a = input[i], b = input[j];
-    float3 a0 = acceleration(a.position_mass.xyz, b.position_mass.xyz, b.position_mass.w);
-    float3 b0 = acceleration(b.position_mass.xyz, a.position_mass.xyz, a.position_mass.w);
-    float3 half_a = a.velocity.xyz + a0 * (0.5f * dt);
-    float3 half_b = b.velocity.xyz + b0 * (0.5f * dt);
-    float3 new_a = a.position_mass.xyz + half_a * dt;
-    float3 new_b = b.position_mass.xyz + half_b * dt;
-    float3 a1 = acceleration(new_a, new_b, b.position_mass.w);
-    a.position_mass.xyz = new_a;
-    a.velocity.xyz = half_a + a1 * (0.5f * dt);
-    output[i] = a;
+    if (i >= body_count) return;
+    Body body = input[i];
+    float3 a = acceleration(i);
+    if (phase == 0) {
+        body.velocity.xyz += a * (0.5f * dt);
+        body.position_mass.xyz += body.velocity.xyz * dt;
+    } else {
+        body.velocity.xyz += a * (0.5f * dt);
+    }
+    output[i] = body;
 }

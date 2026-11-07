@@ -1,9 +1,19 @@
 #pragma once
 
-struct Vec3 {
+class Vec3 {
+    private: 
     double x {};
     double y {};
     double z {};
+
+
+    public:
+    Vec3() = default;
+    Vec3(double x, double y, double z) :
+        x(x),
+        y(y),
+        z(z){};
+
 
     Vec3& operator += (const Vec3& other) 
     {

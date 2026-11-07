@@ -32,13 +32,13 @@ struct IsVectorType
  * Basic Vector class
  */
 template <typename T>
-class BasicVector;
+class Vector;
 
 /*
  * 
  */
 template <typename T>
-struct IsVectorType<BasicVector<T>>
+struct IsVectorType<Vector<T>>
 {
    static constexpr bool is_vec = true;
 };
@@ -50,7 +50,7 @@ constexpr bool IsVector = IsVectorType<T>::is_vec;
  * Testing vector confirmations
  */
 static_assert(!IsVector<float>, "static test failed");
-static_assert(IsVector<BasicVector<float>>, "Static test failed");
+static_assert(IsVector<Vector<float>>, "Static test failed");
 
 
 template <typename t>
@@ -67,7 +67,7 @@ class Vector<float>
         std::array<float, 3> m_data;
 
     public:
-        inline Vector() {};
+        inline Vector() = default;
 
         // constructs a vector from all coordinates
         inline Vector(const std::array<float, 3> coordinate_vec)
@@ -85,6 +85,7 @@ class Vector<float>
         // read only
         inline const float& operator[] (const int i) const
         {
+            // TODO check for out of range access
             return m_data[i];
         };
 
@@ -92,6 +93,7 @@ class Vector<float>
         // read write
         inline float& operator[] (const int i)
         {
+            // TODO check for out of range access
             return m_data[i];
         };
 
@@ -108,7 +110,7 @@ class Vector<float>
         template<int i>
         inline const float& get() const
         {
-            static_assert(unsigned(i) > 3, "Invalid Index");
+            static_assert(unsigned(i) < 3, "Invalid Index");
             return m_data[i];
         }
 
@@ -116,7 +118,7 @@ class Vector<float>
         template<int i>
         inline float& get()
         {
-            static_assert(unsigned(i) > 3, "Invalid Index");
+            static_assert(unsigned(i) < 3, "Invalid Index");
             return m_data[i];
         }
 
@@ -132,8 +134,11 @@ class Vector<float>
          */
         inline static Vector unit(const int i)
         {
+            // TODO handle invalid index
             return Vector(i == 0, i == 1, i == 2);
         }
+
+
 };
 
 

@@ -1,7 +1,7 @@
 #include <metal_stdlib>
 using namespace metal;
 
-struct Body { float4 position_mass; float4 velocity; };
+struct Body { float4 position_mass; float4 velocity; float4 appearance; };
 struct View { float aspect; float unused0; float unused1; float unused2; };
 struct Output {
     float4 position [[position]];
@@ -26,7 +26,7 @@ vertex Output main0(uint id [[vertex_id]], uint instance [[instance_id]],
     uint dr = (corner == 1 || corner == 2 || corner == 4) ? 1 : 0;
     uint dc = (corner == 2 || corner == 4 || corner == 5) ? 1 : 0;
     float3 normal = point(row + dr, column + dc);
-    float radius = instance == 0 ? 0.105f : 0.045f;
+    float radius = bodies[instance].appearance.x;
     float3 world = bodies[instance].position_mass.xyz + radius * normal;
     float3 relative = world - float3(0.5f, 0.0f, 0.0f);
     float depth = 3.2f + relative.y * 0.868f - relative.z * 0.496f;
@@ -35,6 +35,6 @@ vertex Output main0(uint id [[vertex_id]], uint instance [[instance_id]],
                           (relative.y * 0.496f + relative.z * 0.868f) / 0.57735f,
                           depth * depth / 10.0f, depth);
     out.normal = normal;
-    out.color = instance == 0 ? float3(1.0f, 0.56f, 0.12f) : float3(0.20f, 0.54f, 1.0f);
+    out.color = bodies[instance].appearance.yzw;
     return out;
 }

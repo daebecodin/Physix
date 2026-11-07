@@ -21,15 +21,30 @@ constexpr float step_days = 0.5f;
 constexpr int steps_per_frame = 2;
 
 struct alignas(16) Four { float x, y, z, w; };
-struct alignas(16) BodyState { Four position_mass; Four velocity; };
-struct alignas(16) PhysicsParameters { float gravity, dt, unused0, unused1; };
+struct alignas(16) BodyState { Four position_mass; Four velocity; Four appearance; };
+struct alignas(16) PhysicsParameters { float gravity, dt; Uint32 body_count, phase; };
 struct alignas(16) ViewParameters { float aspect, unused0, unused1, unused2; };
-static_assert(sizeof(BodyState) == 32);
+static_assert(sizeof(BodyState) == 48);
+
+const auto initial_states = [] {
+    const double orbital_speed = Physix::Orbital::circularOrbitSpeed(
+        Physix::Masses::SUN_MASS + Physix::Masses::EARTH_MASS,
+        Physix::Distances::EARTH_ORBITAL_DISTANCE);
+    const float earth_speed = static_cast<float>(orbital_speed * day / au);
+    const float ratio = static_cast<float>(Physix::Masses::EARTH_MASS / Physix::Masses::SUN_MASS);
+    return std::array {
+        BodyState {{0, 0, 0, 1}, {0, -earth_speed * ratio, 0, 0}, {0.105f, 1.0f, 0.56f, 0.12f}},
+        BodyState {{1, 0, 0, ratio}, {0, earth_speed, 0, 0}, {0.045f, 0.20f, 0.54f, 1.0f}}
+    };
+}();
+
+constexpr Uint32 compute_threads = 64;
 
 struct App {
     SDL_Window* window = nullptr;
     SDL_GPUDevice* device = nullptr;
     SDL_GPUBuffer* states[2] {};
+    SDL_GPUBuffer* half_step = nullptr;
     SDL_GPUComputePipeline* compute = nullptr;
     SDL_GPUGraphicsPipeline* graphics = nullptr;
     SDL_GPUTexture* depth = nullptr;
@@ -42,6 +57,7 @@ struct App {
             if (depth) SDL_ReleaseGPUTexture(device, depth);
             if (graphics) SDL_ReleaseGPUGraphicsPipeline(device, graphics);
             if (compute) SDL_ReleaseGPUComputePipeline(device, compute);
+            if (half_step) SDL_ReleaseGPUBuffer(device, half_step);
             for (auto* buffer : states) if (buffer) SDL_ReleaseGPUBuffer(device, buffer);
             if (window) SDL_ReleaseWindowFromGPUDevice(device, window);
         }
@@ -103,7 +119,7 @@ void make_pipelines(App& app) {
     ci.num_readonly_storage_buffers = 1;
     ci.num_readwrite_storage_buffers = 1;
     ci.num_uniform_buffers = 1;
-    ci.threadcount_x = 2; ci.threadcount_y = 1; ci.threadcount_z = 1;
+    ci.threadcount_x = compute_threads; ci.threadcount_y = 1; ci.threadcount_z = 1;
     app.compute = SDL_CreateGPUComputePipeline(app.device, &ci);
     require(app.compute != nullptr, "Create compute pipeline");
 
@@ -160,7 +176,7 @@ void make_depth(App& app, int w, int h) {
 }
 
 void initialize_states(App& app) {
-    constexpr Uint32 bytes = sizeof(BodyState) * 2;
+    constexpr Uint32 bytes = sizeof(initial_states);
     SDL_GPUBufferCreateInfo bi {};
     bi.size = bytes;
     bi.usage = SDL_GPU_BUFFERUSAGE_COMPUTE_STORAGE_READ |
@@ -170,23 +186,15 @@ void initialize_states(App& app) {
         if (!buffer) buffer = SDL_CreateGPUBuffer(app.device, &bi);
         require(buffer != nullptr, "Create state buffer");
     }
-
-    const double orbital_speed = Physix::Orbital::circularOrbitSpeed(
-        Physix::Masses::SUN_MASS + Physix::Masses::EARTH_MASS,
-        Physix::Distances::EARTH_ORBITAL_DISTANCE);
-    const float earth_speed = static_cast<float>(orbital_speed * day / au);
-    const float ratio = static_cast<float>(Physix::Masses::EARTH_MASS / Physix::Masses::SUN_MASS);
-    const std::array<BodyState, 2> initial {{
-        {{0, 0, 0, 1}, {0, -earth_speed * ratio, 0, 0}},
-        {{1, 0, 0, ratio}, {0, earth_speed, 0, 0}}
-    }};
+    if (!app.half_step) app.half_step = SDL_CreateGPUBuffer(app.device, &bi);
+    require(app.half_step != nullptr, "Create half-step buffer");
     SDL_GPUTransferBufferCreateInfo ti {};
     ti.usage = SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD; ti.size = bytes;
     auto* transfer = SDL_CreateGPUTransferBuffer(app.device, &ti);
     require(transfer != nullptr, "Create upload buffer");
     void* mapped = SDL_MapGPUTransferBuffer(app.device, transfer, false);
     require(mapped != nullptr, "Map upload buffer");
-    std::memcpy(mapped, initial.data(), bytes);
+    std::memcpy(mapped, initial_states.data(), bytes);
     SDL_UnmapGPUTransferBuffer(app.device, transfer);
     auto* cmd = SDL_AcquireGPUCommandBuffer(app.device);
     require(cmd != nullptr, "Acquire upload command buffer");
@@ -211,18 +219,25 @@ void frame(App& app, bool paused) {
                 (Physix::Distances::EARTH_ORBITAL_DISTANCE *
                  Physix::Distances::EARTH_ORBITAL_DISTANCE *
                  Physix::Distances::EARTH_ORBITAL_DISTANCE)),
-            step_days, 0, 0
+            step_days, static_cast<Uint32>(initial_states.size()), 0
         };
-        for (int step = 0; step < steps_per_frame; ++step) {
-            const int next = 1 - app.current;
-            SDL_GPUStorageBufferReadWriteBinding output {app.states[next], false, 0, 0, 0};
+        const auto dispatch = [&](SDL_GPUBuffer* input, SDL_GPUBuffer* destination, Uint32 phase) {
+            SDL_GPUStorageBufferReadWriteBinding output {destination, false, 0, 0, 0};
             auto* pass = SDL_BeginGPUComputePass(cmd, nullptr, 0, &output, 1);
             require(pass != nullptr, "Begin compute pass");
             SDL_BindGPUComputePipeline(pass, app.compute);
-            SDL_BindGPUComputeStorageBuffers(pass, 0, &app.states[app.current], 1);
-            SDL_PushGPUComputeUniformData(cmd, 0, &parameters, sizeof(parameters));
-            SDL_DispatchGPUCompute(pass, 1, 1, 1);
+            SDL_BindGPUComputeStorageBuffers(pass, 0, &input, 1);
+            PhysicsParameters step_parameters = parameters;
+            step_parameters.phase = phase;
+            SDL_PushGPUComputeUniformData(cmd, 0, &step_parameters, sizeof(step_parameters));
+            SDL_DispatchGPUCompute(pass,
+                (step_parameters.body_count + compute_threads - 1) / compute_threads, 1, 1);
             SDL_EndGPUComputePass(pass);
+        };
+        for (int step = 0; step < steps_per_frame; ++step) {
+            const int next = 1 - app.current;
+            dispatch(app.states[app.current], app.half_step, 0);
+            dispatch(app.half_step, app.states[next], 1);
             app.current = next;
         }
     }
@@ -248,7 +263,7 @@ void frame(App& app, bool paused) {
         SDL_BindGPUVertexStorageBuffers(pass, 0, &app.states[app.current], 1);
         ViewParameters view {static_cast<float>(w) / static_cast<float>(h), 0, 0, 0};
         SDL_PushGPUVertexUniformData(cmd, 0, &view, sizeof(view));
-        SDL_DrawGPUPrimitives(pass, sphere_vertices, 2, 0, 0);
+        SDL_DrawGPUPrimitives(pass, sphere_vertices, initial_states.size(), 0, 0);
         SDL_EndGPURenderPass(pass);
     }
     require(SDL_SubmitGPUCommandBuffer(cmd), "Submit frame");
@@ -262,7 +277,7 @@ int main(int, char**) {
         app.device = SDL_CreateGPUDevice(SDL_GPU_SHADERFORMAT_MSL |
             SDL_GPU_SHADERFORMAT_SPIRV | SDL_GPU_SHADERFORMAT_DXIL, true, nullptr);
         require(app.device != nullptr, "Create GPU device");
-        app.window = SDL_CreateWindow("Physix | GPU two-body (Space pause, R reset, Esc quit)",
+        app.window = SDL_CreateWindow("Physix | GPU bodies (Space pause, R reset, Esc quit)",
             width, height, SDL_WINDOW_RESIZABLE);
         require(app.window != nullptr, "Create window");
         require(SDL_ClaimWindowForGPUDevice(app.device, app.window), "Claim GPU window");

@@ -1,30 +1,33 @@
 #include <metal_stdlib>
 using namespace metal;
 
-struct Body { float4 position_mass; float4 velocity; };
-struct Parameters { float gravity; float dt; float unused0; float unused1; };
+struct Body { float4 position_mass; float4 velocity; float4 appearance; };
+struct Parameters { float gravity; float dt; uint body_count; uint phase; };
 
-float3 acceleration(float3 position, float3 other, float other_mass, float gravity) {
-    float3 delta = other - position;
-    float r2 = max(dot(delta, delta), 1.0e-8f);
-    return gravity * other_mass * delta * rsqrt(r2 * r2 * r2);
+float3 acceleration(uint i, constant Parameters& p, const device Body* input) {
+    float3 result = float3(0.0f);
+    float3 position = input[i].position_mass.xyz;
+    for (uint j = 0; j < p.body_count; ++j) {
+        if (j == i) continue;
+        float3 delta = input[j].position_mass.xyz - position;
+        float r2 = max(dot(delta, delta), 1.0e-8f);
+        result += p.gravity * input[j].position_mass.w * delta * rsqrt(r2 * r2 * r2);
+    }
+    return result;
 }
 
 kernel void main0(constant Parameters& p [[buffer(0)]],
                   const device Body* input [[buffer(1)]],
                   device Body* output [[buffer(2)]],
                   uint i [[thread_position_in_grid]]) {
-    if (i >= 2) return;
-    uint j = 1 - i;
-    Body a = input[i], b = input[j];
-    float3 a0 = acceleration(a.position_mass.xyz, b.position_mass.xyz, b.position_mass.w, p.gravity);
-    float3 b0 = acceleration(b.position_mass.xyz, a.position_mass.xyz, a.position_mass.w, p.gravity);
-    float3 half_a = a.velocity.xyz + a0 * (0.5f * p.dt);
-    float3 half_b = b.velocity.xyz + b0 * (0.5f * p.dt);
-    float3 new_a = a.position_mass.xyz + half_a * p.dt;
-    float3 new_b = b.position_mass.xyz + half_b * p.dt;
-    float3 a1 = acceleration(new_a, new_b, b.position_mass.w, p.gravity);
-    a.position_mass.xyz = new_a;
-    a.velocity.xyz = half_a + a1 * (0.5f * p.dt);
-    output[i] = a;
+    if (i >= p.body_count) return;
+    Body body = input[i];
+    float3 a = acceleration(i, p, input);
+    if (p.phase == 0) {
+        body.velocity.xyz += a * (0.5f * p.dt);
+        body.position_mass.xyz += body.velocity.xyz * p.dt;
+    } else {
+        body.velocity.xyz += a * (0.5f * p.dt);
+    }
+    output[i] = body;
 }

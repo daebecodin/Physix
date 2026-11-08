@@ -4,7 +4,6 @@
 #include <iostream>
 #include <numbers>
 #include <stdexcept>
-#include "body.h"
 
 namespace Gravity = Physix::GravitationalForces;
 

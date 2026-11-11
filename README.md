@@ -30,7 +30,7 @@ cmake -S . -B build
 cmake --build build --target system v1 -j 4
 ```
 
-The first build also compiles SDL3, so it takes longer. Shared calculations and leapfrog live in `impl/`, with headers in `include/`. Both programs link the `physix` library.
+The first build also compiles SDL3, so it takes longer. Shared calculations and leapfrog live in `src/`, with headers grouped by feature in `include/physix/`. Both programs link the `physix` library.
 
 ### Solar-system simulation
 
@@ -82,14 +82,14 @@ These alternatives also run from the project root. The solar-system command uses
 Solar system:
 
 ```sh
-g++ -std=c++20 solar-system/system.cpp impl/physix.cpp impl/physix_calculations.cpp -Iinclude -I/opt/homebrew/include -L/opt/homebrew/lib -lSDL3 -o solar-system/out
+g++ -std=c++20 solar-system/system.cpp src/orbital/simulation.cpp src/orbital/calculations.cpp -Iinclude/physix -Iinclude/physix/bodies -Iinclude/physix/orbital -I/opt/homebrew/include -L/opt/homebrew/lib -lSDL3 -o solar-system/out
 ./solar-system/out
 ```
 
 Projectile calculator:
 
 ```sh
-g++ -std=c++20 projectile-motion/v1.cpp impl/physix_calculations.cpp impl/physix_input.cpp -Iinclude -o projectile-motion/out
+g++ -std=c++20 projectile-motion/v1.cpp src/projectile/calculations.cpp src/projectile/input.cpp -Iinclude/physix -Iinclude/physix/projectile -o projectile-motion/out
 ./projectile-motion/out
 ```
 

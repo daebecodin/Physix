@@ -6,9 +6,9 @@
 #include "SDL3/SDL_video.h"
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_log.h>
-#include "physix.h"
-#include "physix_calulations.h"
-#include "physix_constants.h"
+#include "simulation.h"
+#include "orbital_calculations.h"
+#include "constants.h"
 #include "vec3.h"
 #include <chrono>
 #include <memory>

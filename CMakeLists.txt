@@ -12,6 +12,7 @@ add_subdirectory(
 physix_add_executable(system
     SOURCES solar-system/system.cpp
 )
+target_link_libraries(system PRIVATE SDL3::SDL3)
 
 physix_add_executable(v1
     SOURCES projectile-motion/v1.cpp

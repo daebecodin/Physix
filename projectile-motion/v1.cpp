@@ -1,7 +1,7 @@
 #include <iostream>
 #include <stdexcept>
-#include "physix_calulations.h"
-#include "physix_input.h"
+#include "projectile_calculations.h"
+#include "input.h"
 
 using std::cout;
 

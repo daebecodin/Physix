@@ -29,25 +29,35 @@ if(NOT TARGET physix_pch)
 
     target_include_directories(
         physix_pch
-        INTERFACE "${PHYSIX_ROOT}/include"
+        INTERFACE
+            "${PHYSIX_ROOT}/include/physix"
+            "${PHYSIX_ROOT}/include/physix/bodies"
+            "${PHYSIX_ROOT}/include/physix/orbital"
+            "${PHYSIX_ROOT}/include/physix/projectile"
     )
 
     target_precompile_headers(
         physix_pch
-        INTERFACE "${PHYSIX_ROOT}/include/pch.h"
+        INTERFACE "${PHYSIX_ROOT}/cmake/pch.h"
     )
 endif()
 
 if(NOT TARGET physix)
     add_library(physix STATIC
-        "${PHYSIX_ROOT}/impl/physix.cpp"
-        "${PHYSIX_ROOT}/impl/physix_calculations.cpp"
-        "${PHYSIX_ROOT}/impl/physix_input.cpp"
+        "${PHYSIX_ROOT}/src/orbital/simulation.cpp"
+        "${PHYSIX_ROOT}/src/orbital/calculations.cpp"
+        "${PHYSIX_ROOT}/src/projectile/calculations.cpp"
+        "${PHYSIX_ROOT}/src/projectile/input.cpp"
         "${PHYSIX_ROOT}/core/integrators/euler.cpp"
     )
 
     target_include_directories(physix PRIVATE
+        "${PHYSIX_ROOT}/core/bodies"
+        "${PHYSIX_ROOT}/core/gravity"
+        "${PHYSIX_ROOT}/core/integrators"
         "${PHYSIX_ROOT}/core/physics"
+        "${PHYSIX_ROOT}/core/system"
+        "${PHYSIX_ROOT}/core/timestep"
     )
 
     target_link_libraries(physix PUBLIC physix_pch)
@@ -67,7 +77,7 @@ function(physix_add_executable target_name)
 
     target_link_libraries(
         "${target_name}"
-        PRIVATE physix SDL3::SDL3
+        PRIVATE physix
     )
 endfunction()
 

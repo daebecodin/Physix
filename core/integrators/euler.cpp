@@ -16,6 +16,10 @@
  *          - returns 3 acceleration components
  * @param Universal Gravitational Constant
  * @param Change in time
+ *
+ * Here sim_state and derivatives mist be 2 unique non-overlapping memory blocks
+ *
+ * We calculate the entire derivative array before updating state components 
  */
 
 template <class Real>
@@ -41,10 +45,21 @@ void step_euler(
 
     /*
      * Calculate the derivatives with the current system state 
-     *
      */
-    
+    ode_n_body_first_order<Real>(
+            sim_state,
+            total_bodies,
+            grav_constant,
+            sim_masses,
+            derivatives);
 
+    /*
+     * Advancing Position and Velocity by a single Euler step 
+     */
+    for (std::size_t i = 0; i < sim_state.size(); ++i)
+    {
+        sim_state[i] += dt * derivatives[i];
+    }
 
 }
 

@@ -1,6 +1,6 @@
-#include "physix.h"
+#include "simulation.h"
 #include <vector>
-#include "physix_calulations.h"
+#include "orbital_calculations.h"
 
 namespace Calculate = Physix::Orbital;
 

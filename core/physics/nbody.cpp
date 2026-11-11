@@ -5,7 +5,7 @@
 namespace sim
 {
     template <class Real>
-        std::size_t ode_n_body_first_order(
+        void ode_n_body_first_order(
                 std::span<Real> pos,
                 std::size_t N,
                 Real G,
@@ -84,7 +84,6 @@ namespace sim
                 dxdt[(N + j) * 3 + 1] = ay;
                 dxdt[(N + j) * 3 + 2] = az;
             }
-            return 0;
         }
 
 };

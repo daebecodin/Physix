@@ -170,9 +170,9 @@ namespace Physix {
          */
         Vec3 gravitationlAcceleration(const Body& attracter, const Body& attracted){
 
-            double dx = delta(attracter.position.x, attracted.position.x);
-            double dy = delta(attracter.position.y, attracted.position.y);
-            double dz = delta(attracter.position.z, attracted.position.z);
+            double dx = delta(attracter.position.getX(), attracted.position.getX());
+            double dy = delta(attracter.position.getY(), attracted.position.getY());
+            double dz = delta(attracter.position.getZ(), attracted.position.getZ());
 
 
             // magnitude of the difference of between centers
@@ -191,9 +191,9 @@ namespace Physix {
 
         double distanceFromSun(const std::vector<Body>& bodies, std::size_t bodyIndex)
         {
-            double dx = bodies[bodyIndex].position.x - bodies[0].position.x;
-            double dy = bodies[bodyIndex].position.y - bodies[0].position.y;
-            double dz = bodies[bodyIndex].position.z - bodies[0].position.z;
+            double dx = bodies[bodyIndex].position.getX() - bodies[0].position.getX();
+            double dy = bodies[bodyIndex].position.getY() - bodies[0].position.getY();
+            double dz = bodies[bodyIndex].position.getZ() - bodies[0].position.getZ();
 
             return distanceMagnitude(dx, dy, dz);
         }

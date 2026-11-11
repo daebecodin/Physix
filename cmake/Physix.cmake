@@ -43,6 +43,11 @@ if(NOT TARGET physix)
         "${PHYSIX_ROOT}/impl/physix.cpp"
         "${PHYSIX_ROOT}/impl/physix_calculations.cpp"
         "${PHYSIX_ROOT}/impl/physix_input.cpp"
+        "${PHYSIX_ROOT}/core/integrators/euler.cpp"
+    )
+
+    target_include_directories(physix PRIVATE
+        "${PHYSIX_ROOT}/core/physics"
     )
 
     target_link_libraries(physix PUBLIC physix_pch)

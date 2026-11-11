@@ -200,9 +200,9 @@ int main(int argc, char* argv[])
     {
         std::cout << std::left << std::setw(8) << body.name
             << std::right << std::scientific << std::setprecision(4)
-            << std::setw(14) << body.position.x
-            << std::setw(14) << body.position.y
-            << std::setw(14) << body.position.z << '\n';
+            << std::setw(14) << body.position.getX()
+            << std::setw(14) << body.position.getY()
+            << std::setw(14) << body.position.getZ() << '\n';
     }
 
 
@@ -262,9 +262,9 @@ int main(int argc, char* argv[])
                     << std::setw(14)
                     << Calculate::distanceFromSun(bodies, j) / 1000.0
                     << std::setw(14)
-                    << bodies[j].position.x / 1000.0
+                    << bodies[j].position.getX()/ 1000.0
                     << std::setw(14)
-                    << bodies[j].position.y / 1000.0
+                    << bodies[j].position.getY() / 1000.0
                     << '\n';
             }
 
@@ -298,9 +298,9 @@ int main(int argc, char* argv[])
         for (Body body : bodies) 
         {
             // relative camera position
-            const double xRelative = body.position.x - cam.position.x;
-            const double yRelative = body.position.y - cam.position.y;
-            const double zRelative = body.position.z - cam.position.z;
+            const double xRelative = body.position.getX() - cam.position.getX();
+            const double yRelative = body.position.getY() - cam.position.getY();
+            const double zRelative = body.position.getZ() - cam.position.getZ();
 
 
 

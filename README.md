@@ -23,14 +23,14 @@ Run these commands from the project root (`physix/`). If you're currently in `so
 
 ### First build with CMake
 
-Requires CMake 3.27 or newer and a C++20 compiler. The current `CMakeLists.txt` builds SDL3 from `/Users/dmac/SDL`; that source directory must exist. Update that path in `CMakeLists.txt` if SDL lives elsewhere.
+Requires CMake 3.27 or newer, a C++20 compiler, SDL3, and Matplot++. To build SDL3 from a source checkout, pass `-DPHYSIX_SDL_SOURCE_DIR=/path/to/SDL` when configuring.
 
 ```sh
 cmake -S . -B build
 cmake --build build --target system v1 -j 4
 ```
 
-The first build also compiles SDL3, so it takes longer. Shared calculations and leapfrog live in `src/`, with headers grouped by feature in `include/physix/`. Both programs link the `physix` library.
+Shared calculations and leapfrog live in `src/`, with headers grouped by feature in `include/physix/`. Both programs link the `physix` library.
 
 ### Solar-system simulation
 
@@ -77,7 +77,7 @@ cmake --build build --clean-first -j 4
 
 ### Direct g++ builds on this Mac
 
-These alternatives also run from the project root. The solar-system command uses the installed SDL3 headers and library under `/opt/homebrew`, separately from the SDL source used by CMake.
+These alternatives also run from the project root. The solar-system command uses the installed SDL3 headers and library under `/opt/homebrew`.
 
 Solar system:
 

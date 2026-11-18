@@ -19,13 +19,7 @@
 // Render to Draw
 static SDL_Window* physixWindow = nullptr;
 static SDL_Renderer* physixRenderer = nullptr;
-static SDL_Surface* physixSurface = nullptr;
-static SDL_Texture* physixTexture = nullptr;
 static SDL_Event physixEvent;
-
-constexpr float pixelsPerMeter { 100.0 / Physix::Distances::EARTH_ORBITAL_DISTANCE };
-
-static Uint64 lastTime {};
 
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 720
@@ -52,7 +46,7 @@ static void drawCircle(SDL_Renderer *renderer, float r, float x, float y)
 }
 
 
-int main(int argc, char* argv[]) 
+int main()
 {
     bool isRunning = true;
 
@@ -285,12 +279,6 @@ int main(int argc, char* argv[])
         const float xCenter = WINDOW_WIDTH / 2.0f;
         const float yCenter = WINDOW_HEIGHT / 2.0f;
         const double focalLength = 600.0;
-
-        // Camera Rotation
-        const double cosYaw = SDL_cos(cam.yaw);
-        const double sinYaw = SDL_sin(cam.yaw);
-        const double cosPitch = SDL_cos(cam.pitch);
-        const double sinPitch = SDL_cos(cam.pitch);
 
         /*
          * Body Loop

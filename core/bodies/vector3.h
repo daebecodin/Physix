@@ -146,4 +146,66 @@ class Vector<float>
 /*
  * 3 dimensional vector with double precision
  */
+template <>
+class Vector<double>
+{
+    private:
+        std::array<double, 3> m_data;
+
+    public:
+        inline Vector() = default;
+
+        // constructs a vector from all coordinates
+        inline Vector(const std::array<double, 3> coordinate_vec)
+            : m_data(coordinate_vec) {};
+
+        // construct a vector from given coordinates
+        inline Vector(const double x, const double y, const double z)
+            : m_data{x, y, z} {};
+
+        // construct a vector from a single first coordinate
+        inline Vector(const double& first_coordinate)
+            : m_data{first_coordinate} {};
+
+        // get a component at index, read only
+        inline const double& operator[] (const int i) const
+        {
+            // TODO check for out of range access
+            return m_data[i];
+        };
+
+        // get a component at index, read write
+        inline double& operator[] (const int i)
+        {
+            // TODO check for out of range access
+            return m_data[i];
+        };
+
+        template<int i>
+        inline const double& get() const
+        {
+            static_assert(unsigned(i) < 3, "Invalid Index");
+            return m_data[i];
+        }
+
+        template<int i>
+        inline double& get()
+        {
+            static_assert(unsigned(i) < 3, "Invalid Index");
+            return m_data[i];
+        }
+
+        // return an array of data
+        inline const std::array<double, 3>& data() const
+        {
+            return m_data;
+        }
+
+        // return a unit vector in the chosen component
+        inline static Vector unit(const int i)
+        {
+            // TODO handle invalid index
+            return Vector(i == 0, i == 1, i == 2);
+        }
+};
 

@@ -1,5 +1,5 @@
 CompileFlags:
-  CompilationDatabase: cmake-build-debug
+  CompilationDatabase: build
 ---
 If:
   PathMatch: '.*\.h'

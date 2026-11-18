@@ -48,16 +48,12 @@ if(NOT TARGET physix)
         "${PHYSIX_ROOT}/src/orbital/calculations.cpp"
         "${PHYSIX_ROOT}/src/projectile/calculations.cpp"
         "${PHYSIX_ROOT}/src/projectile/input.cpp"
-        "${PHYSIX_ROOT}/core/integrators/euler.cpp"
+        "${PHYSIX_ROOT}/core/physics/nbody.cpp"
     )
 
-    target_include_directories(physix PRIVATE
-        "${PHYSIX_ROOT}/core/bodies"
-        "${PHYSIX_ROOT}/core/gravity"
-        "${PHYSIX_ROOT}/core/integrators"
-        "${PHYSIX_ROOT}/core/physics"
+    target_include_directories(physix PUBLIC
+        "${PHYSIX_ROOT}/core"
         "${PHYSIX_ROOT}/core/system"
-        "${PHYSIX_ROOT}/core/timestep"
     )
 
     target_link_libraries(physix PUBLIC physix_pch)

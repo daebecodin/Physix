@@ -3,11 +3,12 @@ project(physix LANGUAGES CXX)
 
 include("${CMAKE_CURRENT_LIST_DIR}/cmake/Physix.cmake")
 
-add_subdirectory(
-    "/Users/dmac/SDL"
-    "${CMAKE_BINARY_DIR}/SDL"
-    EXCLUDE_FROM_ALL
-)
+set(PHYSIX_SDL_SOURCE_DIR "" CACHE PATH "Optional path to an SDL3 source checkout")
+if(PHYSIX_SDL_SOURCE_DIR)
+    add_subdirectory("${PHYSIX_SDL_SOURCE_DIR}" "${CMAKE_BINARY_DIR}/SDL" EXCLUDE_FROM_ALL)
+else()
+    find_package(SDL3 CONFIG REQUIRED)
+endif()
 
 physix_add_executable(system
     SOURCES solar-system/system.cpp
@@ -26,3 +27,6 @@ set_target_properties(v1 PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/projectile-motion"
 )
 
+find_package(Matplot++ CONFIG REQUIRED)
+physix_add_executable(orbit SOURCES demos/orbit/orbit.cpp)
+target_link_libraries(orbit PRIVATE Matplot++::matplot)
